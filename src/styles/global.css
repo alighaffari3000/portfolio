@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@theme {
+  --animate-scale: scaleAnim 300ms ease-in-out;
+  --animate-heart-pulse: heart-pulse 0.6s ease-in-out;
+
+  @keyframes scaleAnim {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes heart-pulse {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.1); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.06); }
+    100% { transform: scale(1); }
+  }
+}
+
+@font-face {
+  font-family: "Montserrat Variable";
+  src: url("/fonts/montserrat-latin-wght-normal.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Persian face, served locally so the VPS needs no external font host. */
+@font-face {
+  font-family: "Vazirmatn Variable";
+  src: url("/fonts/vazirmatn-arabic-wght-normal.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --background: #101010;
+  --sec: #a476ff;
+  --white: #dfdfdf;
+  --white-icon: #f3f3f398;
+  --white-icon-tr: #f3f3f310;
+}
+
+/*
+  These rules MUST stay inside `@layer base`. Tailwind v4 emits its utilities into
+  the `utilities` layer, and unlayered CSS always beats layered CSS regardless of
+  specificity — so an unlayered `* { padding: 0; margin: 0 }` silently kills every
+  padding and margin utility in the project. (Tailwind v3 had no layer boundary
+  here, which is why the rules could sit at the top level in the original template.)
+*/
+@layer base {
+  * {
+    font-family: "Montserrat Variable", -apple-system, system-ui, sans-serif;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Persian pages carry dir="rtl" on <html>; Vazirmatn leads, Montserrat still
+     covers the Latin product names that appear inside Persian copy. */
+  [dir="rtl"] * {
+    font-family: "Vazirmatn Variable", "Montserrat Variable", -apple-system, system-ui, sans-serif;
+  }
+
+  /* Persian reads better with a little more line spacing at body sizes. */
+  [dir="rtl"] p,
+  [dir="rtl"] li {
+    line-height: 1.9;
+  }
+
+  *::selection {
+    background-color: var(--sec);
+    color: var(--background);
+  }
+
+  /* Scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--background);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--white-icon-tr);
+    border-radius: 6px;
+    border: 2px solid var(--background);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--sec);
+  }
+
+  /* Scrollbar styles for Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--white-icon-tr) var(--background);
+  }
+}

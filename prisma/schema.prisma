@@ -1,0 +1,58 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// The site is bilingual: English is the default locale (served at /), Persian is
+// served at /fa. Every translatable field has a `*Fa` counterpart. When a Persian
+// value is empty the English one is rendered instead, so a project is never blank
+// in one language — see resolveProject() in src/lib/i18n.ts.
+//
+// `slug`, `heroImage`, `githubUrl`, `demoUrl`, `published` and `order` are shared:
+// they are not language-specific, and a single slug keeps /projects/x and
+// /fa/projects/x pointing at the same record.
+model Project {
+  id             String         @id @default(cuid())
+  slug           String         @unique
+  title          String
+  titleFa        String?
+  summary        String?
+  summaryFa      String?
+  heroImage      String?
+  description    String?
+  descriptionFa  String?
+  problem        String?
+  problemFa      String?
+  solution       String?
+  solutionFa     String?
+  features       String?        // JSON array as string
+  featuresFa     String?        // JSON array as string
+  techStack      String?        // JSON array as string
+  architecture   String?
+  architectureFa String?
+  challenges     String?
+  challengesFa   String?
+  results        String?
+  resultsFa      String?
+  githubUrl      String?
+  demoUrl        String?
+  published      Boolean        @default(true)
+  order          Int            @default(0)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  gallery        GalleryImage[]
+}
+
+model GalleryImage {
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  url       String
+  caption   String?
+  captionFa String?
+  order     Int     @default(0)
+}

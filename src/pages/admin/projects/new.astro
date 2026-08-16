@@ -1,0 +1,304 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+---
+
+<Layout title="New Project — Admin">
+  <div class="min-h-screen bg-[var(--background)] text-[var(--white)] pb-20">
+    <header class="border-b border-[var(--white-icon-tr)] bg-[#1414149c] backdrop-blur-md sticky top-0 z-50">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <a href="/admin" class="text-xs font-mono text-[var(--white-icon)] hover:text-[var(--sec)]">
+          &larr; Back to Dashboard
+        </a>
+        <h1 class="font-bold text-white text-base">Create New Project</h1>
+        <div></div>
+      </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-10">
+      <form id="createProjectForm" class="space-y-8 bg-[#141414] border border-[var(--white-icon-tr)] rounded-2xl p-6 sm:p-10 shadow-2xl">
+        <div id="errorAlert" class="hidden p-4 rounded-xl bg-rose-950/60 border border-rose-500/50 text-rose-300 text-sm"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Project Title *</label>
+            <input 
+              type="text" 
+              name="title" 
+              required 
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+              placeholder="e.g. AI-Powered Analytics Engine"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Slug (URL Identifier)</label>
+            <input 
+              type="text" 
+              name="slug" 
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-[var(--sec)] focus:outline-none focus:border-[var(--sec)] text-sm font-mono"
+              placeholder="analytics-engine (auto-generated if empty)"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Summary (Brief Subtitle)</label>
+          <textarea 
+            name="summary" 
+            rows="2"
+            class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+            placeholder="High-performance data pipeline built with Node SSR and SQLite..."
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Tech Stack (Comma-separated)</label>
+            <input 
+              type="text" 
+              name="techStack" 
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+              placeholder="TypeScript, Astro, Prisma, Tailwind, SQLite"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Key Features (One per line)</label>
+            <textarea 
+              name="features" 
+              rows="3"
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm font-mono"
+              placeholder="Real-time webhooks&#10;Zero-rebuild content management&#10;HMAC-signed session auth"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Case Study Detailed Fields (Plain Textareas) -->
+        <div class="space-y-6 pt-6 border-t border-[var(--white-icon-tr)]">
+          <h2 class="text-lg font-bold text-[var(--sec)]">Case Study Detail Sections</h2>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Project Overview</label>
+            <textarea 
+              name="description" 
+              rows="4"
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+              placeholder="In-depth explanation of the project context and objectives..."
+            ></textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">The Problem</label>
+            <textarea 
+              name="problem" 
+              rows="4"
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+              placeholder="What specific problems or system bottlenecks needed solving..."
+            ></textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Proposed Solution</label>
+            <textarea 
+              name="solution" 
+              rows="4"
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+              placeholder="Detailed architecture choices and solution engineering..."
+            ></textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">System Architecture</label>
+            <textarea 
+              name="architecture" 
+              rows="4"
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm font-mono"
+              placeholder="Nginx -> Astro SSR (Node) -> Prisma -> SQLite"
+            ></textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Challenges & Trade-offs</label>
+            <textarea 
+              name="challenges" 
+              rows="4"
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+              placeholder="Obstacles encountered during implementation..."
+            ></textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Results & Impact</label>
+            <textarea 
+              name="results" 
+              rows="4"
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+              placeholder="Measurable outcomes and performance results..."
+            ></textarea>
+          </div>
+        </div>
+
+        <!--
+          Persian content. Every field is optional: an empty Persian value falls
+          back to its English counterpart on /fa.
+        -->
+        <div class="space-y-6 pt-6 border-t border-[var(--white-icon-tr)]" dir="rtl">
+          <div>
+            <h2 class="text-lg font-bold text-[var(--sec)]">محتوای فارسی</h2>
+            <p class="text-xs text-[var(--white-icon)] mt-1">
+              هر فیلدی که خالی بماند، نسخه انگلیسی آن در صفحه فارسی نمایش داده می‌شود.
+            </p>
+          </div>
+
+          {[
+            { name: 'titleFa', label: 'عنوان پروژه', rows: 1 },
+            { name: 'summaryFa', label: 'خلاصه', rows: 2 },
+            { name: 'featuresFa', label: 'قابلیت‌های اصلی (هر خط یک مورد)', rows: 3 },
+            { name: 'descriptionFa', label: 'معرفی پروژه', rows: 4 },
+            { name: 'problemFa', label: 'مسئله و هدف', rows: 4 },
+            { name: 'solutionFa', label: 'راهکار', rows: 4 },
+            { name: 'architectureFa', label: 'معماری سیستم', rows: 4 },
+            { name: 'challengesFa', label: 'چالش‌ها و راه‌حل‌ها', rows: 4 },
+            { name: 'resultsFa', label: 'نتایج و دستاوردها', rows: 4 },
+          ].map((field) => (
+            <div>
+              <label class="block text-xs text-[var(--white-icon)] mb-2">{field.label}</label>
+              <textarea
+                name={field.name}
+                rows={field.rows}
+                class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+              />
+            </div>
+          ))}
+        </div>
+
+        <!-- External Links & Display Settings -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-[var(--white-icon-tr)]">
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">GitHub URL</label>
+            <input 
+              type="url" 
+              name="githubUrl" 
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+              placeholder="https://github.com/..."
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Live Demo URL</label>
+            <input 
+              type="url" 
+              name="demoUrl" 
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+              placeholder="https://example.com"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Display Order (Sorting)</label>
+            <input 
+              type="number" 
+              name="order" 
+              value="0"
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm font-mono"
+            />
+          </div>
+
+          <div class="flex items-center gap-3 pt-6">
+            <input 
+              type="checkbox" 
+              name="published" 
+              id="published" 
+              checked 
+              class="w-5 h-5 rounded bg-[var(--background)] border-[var(--white-icon-tr)] text-[var(--sec)] focus:ring-0"
+            />
+            <label for="published" class="text-sm font-semibold text-[var(--white)]">Publish immediately</label>
+          </div>
+        </div>
+
+        <div class="pt-6 border-t border-[var(--white-icon-tr)] flex justify-end gap-4">
+          <a href="/admin" class="px-5 py-3 rounded-xl bg-[var(--white-icon-tr)] hover:bg-[var(--white-icon-tr)] text-[var(--white-icon)] font-semibold text-sm">
+            Cancel
+          </a>
+          <button 
+            type="submit" 
+            id="saveBtn"
+            class="px-6 py-3 rounded-xl bg-[var(--sec)] font-semibold text-white text-sm shadow-lg  hover:opacity-95"
+          >
+            Create Project &rarr;
+          </button>
+        </div>
+      </form>
+    </main>
+  </div>
+</Layout>
+
+<script>
+  const form = document.getElementById('createProjectForm') as HTMLFormElement;
+  const errorAlert = document.getElementById('errorAlert') as HTMLDivElement;
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorAlert.classList.add('hidden');
+
+    const formData = new FormData(form);
+    
+    // Process tech stack (comma separated)
+    const techStackRaw = (formData.get('techStack') as string) || '';
+    const techStack = techStackRaw.split(',').map(s => s.trim()).filter(Boolean);
+
+    // Process features (newline separated)
+    const featuresRaw = (formData.get('features') as string) || '';
+    const features = featuresRaw.split('\n').map(s => s.trim()).filter(Boolean);
+
+    const payload = {
+      title: formData.get('title'),
+      slug: formData.get('slug'),
+      summary: formData.get('summary'),
+      description: formData.get('description'),
+      problem: formData.get('problem'),
+      solution: formData.get('solution'),
+      architecture: formData.get('architecture'),
+      challenges: formData.get('challenges'),
+      results: formData.get('results'),
+      // Persian counterparts — empty values fall back to English on /fa.
+      titleFa: formData.get('titleFa'),
+      summaryFa: formData.get('summaryFa'),
+      descriptionFa: formData.get('descriptionFa'),
+      problemFa: formData.get('problemFa'),
+      solutionFa: formData.get('solutionFa'),
+      architectureFa: formData.get('architectureFa'),
+      challengesFa: formData.get('challengesFa'),
+      resultsFa: formData.get('resultsFa'),
+      githubUrl: formData.get('githubUrl'),
+      demoUrl: formData.get('demoUrl'),
+      order: parseInt(formData.get('order') as string, 10) || 0,
+      published: formData.get('published') === 'on',
+      techStack,
+      features,
+      featuresFa: ((formData.get('featuresFa') as string) || '')
+        .split('\n')
+        .map((s) => s.trim())
+        .filter(Boolean),
+    };
+
+    try {
+      const res = await fetch('/api/admin/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        window.location.href = `/admin/projects/${data.project.id}/edit`;
+      } else {
+        errorAlert.textContent = data.error || 'Failed to create project';
+        errorAlert.classList.remove('hidden');
+      }
+    } catch (err) {
+      errorAlert.textContent = 'Connection error. Please try again.';
+      errorAlert.classList.remove('hidden');
+    }
+  });
+</script>

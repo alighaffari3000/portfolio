@@ -1,0 +1,54 @@
+---
+import '../styles/global.css';
+import { t, dir, alternatePath, type Locale } from '../lib/i18n';
+
+interface Props {
+  title?: string;
+  description?: string;
+  locale?: Locale;
+}
+
+const { locale = 'en', title, description } = Astro.props;
+const strings = t(locale);
+
+const pageTitle = title ?? strings.siteTitle;
+const pageDescription = description ?? strings.siteDescription;
+const pathname = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang={strings.htmlLang} dir={dir(locale)}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+
+    <link rel="alternate" hreflang="en" href={alternatePath(pathname, 'en')} />
+    <link rel="alternate" hreflang="fa" href={alternatePath(pathname, 'fa')} />
+
+    <link
+      rel="preload"
+      href={locale === 'fa'
+        ? '/fonts/vazirmatn-arabic-wght-normal.woff2'
+        : '/fonts/montserrat-latin-wght-normal.woff2'}
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={locale === 'fa' ? 'fa_IR' : 'en_US'} />
+  </head>
+  <body
+    class="bg-[var(--background)] sm:px-28 lg:px-20 px-9 text-[var(--white)] min-h-screen antialiased selection:bg-[var(--sec)] selection:text-[var(--background)]"
+  >
+    <slot />
+  </body>
+</html>

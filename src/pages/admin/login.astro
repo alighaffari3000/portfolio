@@ -1,0 +1,94 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Admin Login — Portfolio">
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-[#1414149c] border border-[var(--white-icon-tr)] rounded-2xl p-8 shadow-2xl">
+      <div class="text-center mb-8">
+        <div class="w-12 h-12 rounded-xl bg-[var(--sec)] text-black flex items-center justify-center font-bold text-2xl mx-auto mb-4">
+          P
+        </div>
+        <h1 class="text-2xl font-medium text-[var(--white)]">Admin Authentication</h1>
+        <p class="text-[var(--white-icon)] text-sm mt-1">Sign in to manage portfolio case studies</p>
+      </div>
+
+      <form id="loginForm" class="space-y-5">
+        <div id="errorAlert" class="hidden p-3 rounded-lg bg-rose-950/60 border border-rose-500/50 text-rose-300 text-sm font-medium"></div>
+
+        <div>
+          <label for="username" class="block text-xs font-mono font-medium text-[var(--white-icon)] uppercase tracking-wider mb-2">Username</label>
+          <input 
+            type="text" 
+            id="username" 
+            name="username" 
+            required 
+            autocomplete="username"
+            class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-[var(--white)] focus:outline-none focus:border-[var(--sec)] transition-colors text-sm"
+            placeholder="admin"
+          />
+        </div>
+
+        <div>
+          <label for="password" class="block text-xs font-mono font-medium text-[var(--white-icon)] uppercase tracking-wider mb-2">Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            required 
+            autocomplete="current-password"
+            class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-[var(--white)] focus:outline-none focus:border-[var(--sec)] transition-colors text-sm"
+            placeholder="••••••••"
+          />
+        </div>
+
+        <button 
+          type="submit" 
+          id="submitBtn"
+          class="w-full py-3 px-4 rounded-full bg-[var(--sec)] font-semibold text-black hover:opacity-90 transition-all text-sm cursor-pointer"
+        >
+          Sign In &rarr;
+        </button>
+      </form>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const form = document.getElementById('loginForm') as HTMLFormElement;
+  const errorAlert = document.getElementById('errorAlert') as HTMLDivElement;
+  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorAlert.classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Authenticating...';
+
+    const username = (document.getElementById('username') as HTMLInputElement).value;
+    const password = (document.getElementById('password') as HTMLInputElement).value;
+
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        window.location.href = '/admin';
+      } else {
+        errorAlert.textContent = data.error || 'Invalid credentials';
+        errorAlert.classList.remove('hidden');
+      }
+    } catch (err) {
+      errorAlert.textContent = 'Connection error. Please try again.';
+      errorAlert.classList.remove('hidden');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Sign In →';
+    }
+  });
+</script>

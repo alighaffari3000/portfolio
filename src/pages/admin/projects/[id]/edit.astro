@@ -1,0 +1,560 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { db } from '../../../../lib/db';
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect('/admin');
+}
+
+const project = await db.project.findUnique({
+  where: { id },
+  include: {
+    gallery: {
+      orderBy: { order: 'asc' },
+    },
+  },
+});
+
+if (!project) {
+  return Astro.redirect('/admin');
+}
+
+let techStackStr = '';
+if (project.techStack) {
+  try {
+    const parsed = JSON.parse(project.techStack);
+    if (Array.isArray(parsed)) techStackStr = parsed.join(', ');
+  } catch {}
+}
+
+let featuresStr = '';
+if (project.features) {
+  try {
+    const parsed = JSON.parse(project.features);
+    if (Array.isArray(parsed)) featuresStr = parsed.join('\n');
+  } catch {}
+}
+
+let featuresFaStr = '';
+if (project.featuresFa) {
+  try {
+    const parsed = JSON.parse(project.featuresFa);
+    if (Array.isArray(parsed)) featuresFaStr = parsed.join('\n');
+  } catch {}
+}
+---
+
+<Layout title={`Edit ${project.title} — Admin`}>
+  <div class="min-h-screen bg-[var(--background)] text-[var(--white)] pb-20">
+    <header class="border-b border-[var(--white-icon-tr)] bg-[#1414149c] backdrop-blur-md sticky top-0 z-50">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <a href="/admin" class="text-xs font-mono text-[var(--white-icon)] hover:text-[var(--sec)]">
+          &larr; Back to Dashboard
+        </a>
+        <h1 class="font-bold text-white text-base">Edit Project: {project.title}</h1>
+        <a href={`/projects/${project.slug}`} target="_blank" class="text-xs font-mono text-[var(--sec)] hover:underline">
+          View Public Page &rarr;
+        </a>
+      </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-10 space-y-12">
+
+      <!-- Hero Image Upload Section -->
+      <section class="bg-[#141414] border border-[var(--white-icon-tr)] rounded-2xl p-6 sm:p-8 shadow-xl">
+        <h2 class="text-lg font-bold text-white mb-4">Hero Image</h2>
+        
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+          {project.heroImage ? (
+            <div class="w-48 h-32 rounded-xl overflow-hidden bg-[var(--background)] border border-[var(--white-icon-tr)] shrink-0">
+              <img src={project.heroImage} alt="Hero" class="w-full h-full object-cover" />
+            </div>
+          ) : (
+            <div class="w-48 h-32 rounded-xl bg-[var(--background)] border border-dashed border-[var(--white-icon-tr)] shrink-0 flex items-center justify-center text-[var(--white-icon)] text-xs font-mono">
+              No Hero Image
+            </div>
+          )}
+
+          <div class="space-y-3 flex-grow">
+            <form id="heroUploadForm" class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <input 
+                type="file" 
+                name="file" 
+                accept="image/jpeg,image/png,image/webp" 
+                required 
+                class="text-xs text-[var(--white-icon)] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#1414149c] file:text-[var(--sec)] hover:file:bg-[var(--white-icon-tr)] cursor-pointer"
+              />
+              <button 
+                type="submit" 
+                class="px-4 py-2 rounded-xl bg-[var(--sec)] hover:opacity-90 text-white font-semibold text-xs transition-colors shrink-0"
+              >
+                {project.heroImage ? 'Replace Hero Image' : 'Upload Hero Image'}
+              </button>
+            </form>
+            <p class="text-xs text-[var(--white-icon)] font-mono">Supported formats: JPG, PNG, WebP (Max 5MB). SVG and GIF are strictly rejected.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Project Form -->
+      <form id="editProjectForm" class="space-y-8 bg-[#141414] border border-[var(--white-icon-tr)] rounded-2xl p-6 sm:p-10 shadow-2xl">
+        <div id="errorAlert" class="hidden p-4 rounded-xl bg-rose-950/60 border border-rose-500/50 text-rose-300 text-sm"></div>
+        <div id="successAlert" class="hidden p-4 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-emerald-300 text-sm"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Project Title *</label>
+            <input 
+              type="text" 
+              name="title" 
+              value={project.title}
+              required 
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Slug (URL Identifier) *</label>
+            <input 
+              type="text" 
+              name="slug" 
+              value={project.slug}
+              required
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-[var(--sec)] focus:outline-none focus:border-[var(--sec)] text-sm font-mono"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Summary (Brief Subtitle)</label>
+          <textarea 
+            name="summary" 
+            rows="2"
+            class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+          >{project.summary || ''}</textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Tech Stack (Comma-separated)</label>
+            <input 
+              type="text" 
+              name="techStack" 
+              value={techStackStr}
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Key Features (One per line)</label>
+            <textarea 
+              name="features" 
+              rows="3"
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm font-mono"
+            >{featuresStr}</textarea>
+          </div>
+        </div>
+
+        <!-- Case Study Sections (Plain Textareas) -->
+        <div class="space-y-6 pt-6 border-t border-[var(--white-icon-tr)]">
+          <h2 class="text-lg font-bold text-[var(--sec)]">Case Study Detail Sections</h2>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Project Overview</label>
+            <textarea 
+              name="description" 
+              rows="4"
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+            >{project.description || ''}</textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">The Problem</label>
+            <textarea 
+              name="problem" 
+              rows="4"
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+            >{project.problem || ''}</textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Proposed Solution</label>
+            <textarea 
+              name="solution" 
+              rows="4"
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+            >{project.solution || ''}</textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">System Architecture</label>
+            <textarea 
+              name="architecture" 
+              rows="4"
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm font-mono"
+            >{project.architecture || ''}</textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Challenges & Trade-offs</label>
+            <textarea 
+              name="challenges" 
+              rows="4"
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+            >{project.challenges || ''}</textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Results & Impact</label>
+            <textarea 
+              name="results" 
+              rows="4"
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+            >{project.results || ''}</textarea>
+          </div>
+        </div>
+
+        <!--
+          Persian content. Every field is optional: an empty Persian value falls
+          back to its English counterpart on /fa, so a half-translated project
+          still renders completely.
+        -->
+        <div class="space-y-6 pt-6 border-t border-[var(--white-icon-tr)]" dir="rtl">
+          <div>
+            <h2 class="text-lg font-bold text-[var(--sec)]">محتوای فارسی</h2>
+            <p class="text-xs text-[var(--white-icon)] mt-1">
+              هر فیلدی که خالی بماند، نسخه انگلیسی آن در صفحه فارسی نمایش داده می‌شود.
+            </p>
+          </div>
+
+          {[
+            { name: 'titleFa', label: 'عنوان پروژه', rows: 1, value: project.titleFa },
+            { name: 'summaryFa', label: 'خلاصه', rows: 2, value: project.summaryFa },
+            { name: 'featuresFa', label: 'قابلیت‌های اصلی (هر خط یک مورد)', rows: 3, value: featuresFaStr },
+            { name: 'descriptionFa', label: 'معرفی پروژه', rows: 4, value: project.descriptionFa },
+            { name: 'problemFa', label: 'مسئله و هدف', rows: 4, value: project.problemFa },
+            { name: 'solutionFa', label: 'راهکار', rows: 4, value: project.solutionFa },
+            { name: 'architectureFa', label: 'معماری سیستم', rows: 4, value: project.architectureFa },
+            { name: 'challengesFa', label: 'چالش‌ها و راه‌حل‌ها', rows: 4, value: project.challengesFa },
+            { name: 'resultsFa', label: 'نتایج و دستاوردها', rows: 4, value: project.resultsFa },
+          ].map((field) => (
+            <div>
+              <label class="block text-xs text-[var(--white-icon)] mb-2">{field.label}</label>
+              <textarea
+                name={field.name}
+                rows={field.rows}
+                class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+              >{field.value || ''}</textarea>
+            </div>
+          ))}
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-[var(--white-icon-tr)]">
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">GitHub URL</label>
+            <input 
+              type="url" 
+              name="githubUrl" 
+              value={project.githubUrl || ''}
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Live Demo URL</label>
+            <input 
+              type="url" 
+              name="demoUrl" 
+              value={project.demoUrl || ''}
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-[var(--white-icon)] mb-2">Display Order (Sorting)</label>
+            <input 
+              type="number" 
+              name="order" 
+              value={project.order}
+              class="w-full px-4 py-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] text-white focus:outline-none focus:border-[var(--sec)] text-sm font-mono"
+            />
+          </div>
+
+          <div class="flex items-center gap-3 pt-6">
+            <input 
+              type="checkbox" 
+              name="published" 
+              id="published" 
+              checked={project.published} 
+              class="w-5 h-5 rounded bg-[var(--background)] border-[var(--white-icon-tr)] text-[var(--sec)] focus:ring-0"
+            />
+            <label for="published" class="text-sm font-semibold text-[var(--white)]">Published (Visible to public)</label>
+          </div>
+        </div>
+
+        <div class="pt-6 border-t border-[var(--white-icon-tr)] flex justify-end gap-4">
+          <a href="/admin" class="px-5 py-3 rounded-xl bg-[var(--white-icon-tr)] hover:bg-[var(--white-icon-tr)] text-[var(--white-icon)] font-semibold text-sm">
+            Cancel
+          </a>
+          <button 
+            type="submit" 
+            class="px-6 py-3 rounded-xl bg-[var(--sec)] font-semibold text-white text-sm shadow-lg  hover:opacity-95"
+          >
+            Save Changes &rarr;
+          </button>
+        </div>
+      </form>
+
+      <!-- Image Gallery Management Section -->
+      <section class="bg-[#141414] border border-[var(--white-icon-tr)] rounded-2xl p-6 sm:p-10 shadow-xl space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-bold text-white">Project Image Gallery</h2>
+            <p class="text-xs text-[var(--white-icon)] font-mono mt-0.5">{project.gallery.length} of 30 images uploaded</p>
+          </div>
+        </div>
+
+        <!-- Gallery Upload Form -->
+        <form id="galleryUploadForm" class="p-4 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <input 
+            type="file" 
+            name="file" 
+            accept="image/jpeg,image/png,image/webp" 
+            required 
+            class="text-xs text-[var(--white-icon)] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#1414149c] file:text-[var(--sec)] hover:file:bg-[var(--white-icon-tr)] cursor-pointer"
+          />
+          <input 
+            type="text" 
+            name="caption" 
+            placeholder="Image caption (optional)" 
+            class="px-3 py-2 rounded-xl bg-[#141414] border border-[var(--white-icon-tr)] text-[var(--white)] text-xs w-full sm:w-64 focus:outline-none focus:border-[var(--sec)]"
+          />
+          <button 
+            type="submit" 
+            class="px-4 py-2 rounded-xl bg-[var(--sec)] text-white font-semibold text-xs shrink-0"
+          >
+            Add Image &rarr;
+          </button>
+        </form>
+
+        <!-- Gallery Grid & Reorder Controls -->
+        {project.gallery.length > 0 ? (
+          <div id="galleryContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {project.gallery.map((img, idx) => (
+              <div data-id={img.id} data-order={img.order} class="gallery-item p-3 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] flex flex-col gap-3">
+                <div class="aspect-video w-full rounded-lg overflow-hidden bg-[#141414]">
+                  <img src={img.url} alt={img.caption || ''} class="w-full h-full object-cover" />
+                </div>
+                {img.caption && <p class="text-xs text-[var(--white-icon)] font-mono truncate">{img.caption}</p>}
+                
+                <div class="flex items-center justify-between pt-2 border-t border-[var(--white-icon-tr)]">
+                  <div class="flex items-center gap-1">
+                    {idx > 0 && (
+                      <button type="button" data-action="up" data-id={img.id} class="reorder-btn p-1.5 rounded bg-[#141414] text-[var(--white-icon)] hover:text-white text-xs">
+                        &uarr;
+                      </button>
+                    )}
+                    {idx < project.gallery.length - 1 && (
+                      <button type="button" data-action="down" data-id={img.id} class="reorder-btn p-1.5 rounded bg-[#141414] text-[var(--white-icon)] hover:text-white text-xs">
+                        &darr;
+                      </button>
+                    )}
+                  </div>
+                  
+                  <button 
+                    type="button" 
+                    data-id={img.id} 
+                    class="delete-gallery-btn px-2.5 py-1 rounded bg-rose-950/60 hover:bg-rose-900 text-rose-300 text-xs font-medium border border-rose-500/30"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div class="p-8 text-center text-[var(--white-icon)] text-xs font-mono">
+            No gallery images uploaded yet.
+          </div>
+        )}
+      </section>
+
+    </main>
+  </div>
+</Layout>
+
+<script>
+  const projectId = window.location.pathname.split('/')[3];
+
+  // Hero Image Upload
+  document.getElementById('heroUploadForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    formData.append('type', 'hero');
+
+    try {
+      const res = await fetch(`/api/admin/projects/${projectId}/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        window.location.reload();
+      } else {
+        alert(data.error || 'Failed to upload hero image');
+      }
+    } catch (err) {
+      alert('Upload failed');
+    }
+  });
+
+  // Edit Project Form Submit
+  document.getElementById('editProjectForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const errorAlert = document.getElementById('errorAlert') as HTMLDivElement;
+    const successAlert = document.getElementById('successAlert') as HTMLDivElement;
+    errorAlert.classList.add('hidden');
+    successAlert.classList.add('hidden');
+
+    const formData = new FormData(form);
+    
+    const techStackRaw = (formData.get('techStack') as string) || '';
+    const techStack = techStackRaw.split(',').map(s => s.trim()).filter(Boolean);
+
+    const toList = (raw: string) => raw.split('\n').map(s => s.trim()).filter(Boolean);
+    const features = toList((formData.get('features') as string) || '');
+    const featuresFa = toList((formData.get('featuresFa') as string) || '');
+
+    const payload = {
+      title: formData.get('title'),
+      slug: formData.get('slug'),
+      summary: formData.get('summary'),
+      description: formData.get('description'),
+      problem: formData.get('problem'),
+      solution: formData.get('solution'),
+      architecture: formData.get('architecture'),
+      challenges: formData.get('challenges'),
+      results: formData.get('results'),
+      // Persian counterparts — empty values fall back to English on /fa.
+      titleFa: formData.get('titleFa'),
+      summaryFa: formData.get('summaryFa'),
+      descriptionFa: formData.get('descriptionFa'),
+      problemFa: formData.get('problemFa'),
+      solutionFa: formData.get('solutionFa'),
+      architectureFa: formData.get('architectureFa'),
+      challengesFa: formData.get('challengesFa'),
+      resultsFa: formData.get('resultsFa'),
+      githubUrl: formData.get('githubUrl'),
+      demoUrl: formData.get('demoUrl'),
+      order: parseInt(formData.get('order') as string, 10) || 0,
+      published: formData.get('published') === 'on',
+      techStack,
+      features,
+      featuresFa,
+    };
+
+    try {
+      const res = await fetch(`/api/admin/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        successAlert.textContent = 'Project updated successfully!';
+        successAlert.classList.remove('hidden');
+      } else {
+        errorAlert.textContent = data.error || 'Failed to update project';
+        errorAlert.classList.remove('hidden');
+      }
+    } catch (err) {
+      errorAlert.textContent = 'Connection error';
+      errorAlert.classList.remove('hidden');
+    }
+  });
+
+  // Gallery Image Upload
+  document.getElementById('galleryUploadForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    formData.append('type', 'gallery');
+
+    try {
+      const res = await fetch(`/api/admin/projects/${projectId}/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        window.location.reload();
+      } else {
+        alert(data.error || 'Failed to upload gallery image');
+      }
+    } catch (err) {
+      alert('Upload failed');
+    }
+  });
+
+  // Delete Gallery Image
+  document.querySelectorAll('.delete-gallery-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const imageId = btn.getAttribute('data-id');
+      if (!imageId) return;
+
+      if (confirm('Delete this gallery image?')) {
+        try {
+          const res = await fetch(`/api/admin/projects/${projectId}/gallery/${imageId}`, {
+            method: 'DELETE',
+          });
+          if (res.ok) window.location.reload();
+        } catch (err) {
+          alert('Failed to delete image');
+        }
+      }
+    });
+  });
+
+  // Reorder Gallery Images (PUT /api/admin/projects/:id/gallery)
+  document.querySelectorAll('.reorder-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const action = btn.getAttribute('data-action');
+      const imageId = btn.getAttribute('data-id');
+      const items = Array.from(document.querySelectorAll('.gallery-item')) as HTMLElement[];
+      
+      const currentIndex = items.findIndex(el => el.getAttribute('data-id') === imageId);
+      if (currentIndex === -1) return;
+
+      const targetIndex = action === 'up' ? currentIndex - 1 : currentIndex + 1;
+      if (targetIndex < 0 || targetIndex >= items.length) return;
+
+      // Swap items in DOM array
+      const temp = items[currentIndex];
+      items[currentIndex] = items[targetIndex];
+      items[targetIndex] = temp;
+
+      // Create new ordered array
+      const reorderedPayload = items.map((el, index) => ({
+        id: el.getAttribute('data-id'),
+        order: index,
+      }));
+
+      try {
+        const res = await fetch(`/api/admin/projects/${projectId}/gallery`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(reorderedPayload),
+        });
+
+        if (res.ok) window.location.reload();
+      } catch (err) {
+        alert('Failed to reorder gallery');
+      }
+    });
+  });
+</script>

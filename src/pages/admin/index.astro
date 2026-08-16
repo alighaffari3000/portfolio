@@ -1,0 +1,214 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { db } from '../../lib/db';
+
+const projects = await db.project.findMany({
+  orderBy: [
+    { order: 'asc' },
+    { createdAt: 'desc' },
+  ],
+  include: {
+    gallery: true,
+  },
+});
+---
+
+<Layout title="Admin Dashboard — Portfolio">
+  <div class="min-h-screen text-[var(--white)] py-8">
+    <!-- Admin Header -->
+    <header class="border-b border-[#ffffff10] bg-[#1414149c] backdrop-blur-md rounded-2xl mb-8">
+      <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-[var(--sec)] text-black flex items-center justify-center font-bold text-sm">
+            P
+          </div>
+          <span class="font-semibold text-lg text-[var(--white)]">Admin Dashboard</span>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <a href="/" target="_blank" class="text-xs font-mono text-[var(--white-icon)] hover:text-[var(--sec)] transition-colors">
+            View Live Site &rarr;
+          </a>
+          <button 
+            id="logoutBtn"
+            class="px-3.5 py-1.5 rounded-lg bg-[var(--background)] border border-[var(--white-icon-tr)] hover:border-[var(--white-icon)] text-xs font-semibold text-[var(--white-icon)] transition-colors cursor-pointer"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 class="text-3xl font-medium text-[var(--white)]">Project Case Studies</h1>
+          <p class="text-sm text-[var(--white-icon)] mt-1">Manage project records, case study contents, images, and publish status</p>
+        </div>
+        <a 
+          href="/admin/projects/new" 
+          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--sec)] text-black font-semibold text-sm hover:opacity-90 transition-all"
+        >
+          + Add New Project
+        </a>
+      </div>
+
+      <!-- Projects Table -->
+      <div class="bg-[#1414149c] border border-[var(--white-icon-tr)] rounded-2xl overflow-hidden shadow-xl">
+        {projects.length > 0 ? (
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-[var(--white-icon)]">
+              <thead class="bg-[var(--background)] text-[var(--white-icon)] font-mono text-xs uppercase border-b border-[var(--white-icon-tr)]">
+                <tr>
+                  <th class="px-6 py-4">Hero / Title</th>
+                  <th class="px-6 py-4">Slug</th>
+                  <th class="px-6 py-4">Order</th>
+                  <th class="px-6 py-4">Status</th>
+                  <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#ffffff10]">
+                {projects.map((proj) => (
+                  <tr class="hover:bg-[var(--white-icon-tr)] transition-colors">
+                    <td class="px-6 py-4 font-medium text-[var(--white)] flex items-center gap-3">
+                      {proj.heroImage ? (
+                        <img src={proj.heroImage} alt="" class="w-10 h-10 rounded-lg object-cover bg-[var(--background)] border border-[var(--white-icon-tr)]" />
+                      ) : (
+                        <div class="w-10 h-10 rounded-lg bg-[var(--background)] border border-[var(--white-icon-tr)] flex items-center justify-center font-bold text-[var(--sec)]">
+                          {proj.title.charAt(0)}
+                        </div>
+                      )}
+                      <div>
+                        <div class="font-semibold text-[var(--white)]">{proj.title}</div>
+                        <div class="text-xs text-[var(--white-icon)] font-mono">{proj.gallery.length} gallery images</div>
+                      </div>
+                    </td>
+
+                    <td class="px-6 py-4 font-mono text-xs text-[var(--sec)]">
+                      /projects/{proj.slug}
+                    </td>
+
+                    <td class="px-6 py-4">
+                      <input 
+                        type="number" 
+                        value={proj.order} 
+                        data-id={proj.id}
+                        class="order-input w-16 px-2.5 py-1 rounded-lg bg-[var(--background)] border border-[var(--white-icon-tr)] text-xs font-mono text-[var(--white)] focus:outline-none focus:border-[var(--sec)]"
+                      />
+                    </td>
+
+                    <td class="px-6 py-4">
+                      <button 
+                        data-id={proj.id} 
+                        data-published={proj.published ? 'true' : 'false'}
+                        class="toggle-publish-btn px-3 py-1 rounded-full text-xs font-semibold border transition-all cursor-pointer"
+                      >
+                        {proj.published ? (
+                          <span class="text-[#A9FF5B] bg-[#A9FF5B]/10 border border-[#A9FF5B]/30 px-2.5 py-0.5 rounded-full">Published</span>
+                        ) : (
+                          <span class="text-[var(--white-icon)] bg-[var(--background)] border border-[var(--white-icon-tr)] px-2.5 py-0.5 rounded-full">Draft</span>
+                        )}
+                      </button>
+                    </td>
+
+                    <td class="px-6 py-4 text-right space-x-2">
+                      <a 
+                        href={`/admin/projects/${proj.id}/edit`}
+                        class="px-3 py-1.5 rounded-lg bg-[var(--background)] hover:bg-[var(--white-icon-tr)] text-xs font-semibold text-[var(--white)] border border-[var(--white-icon-tr)] transition-colors inline-block"
+                      >
+                        Edit
+                      </a>
+                      <button 
+                        data-id={proj.id} 
+                        data-title={proj.title}
+                        class="delete-btn px-3 py-1.5 rounded-lg bg-rose-950/60 hover:bg-rose-900/80 text-xs font-semibold text-rose-300 border border-rose-500/30 transition-colors cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div class="p-12 text-center text-[var(--white-icon)]">
+            No projects in database. Create your first project using the button above.
+          </div>
+        )}
+      </div>
+    </main>
+  </div>
+</Layout>
+
+<script>
+  // Logout logic
+  document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    await fetch('/api/admin/logout', { method: 'POST' });
+    window.location.href = '/admin/login';
+  });
+
+  // Toggle publish state
+  document.querySelectorAll('.toggle-publish-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-id');
+      const isPublished = btn.getAttribute('data-published') === 'true';
+      if (!id) return;
+
+      try {
+        const res = await fetch(`/api/admin/projects/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ published: !isPublished }),
+        });
+        if (res.ok) window.location.reload();
+      } catch (err) {
+        alert('Failed to toggle publish status');
+      }
+    });
+  });
+
+  // Order input change
+  document.querySelectorAll('.order-input').forEach((input) => {
+    input.addEventListener('change', async (e) => {
+      const target = e.target as HTMLInputElement;
+      const id = target.getAttribute('data-id');
+      const newOrder = parseInt(target.value, 10);
+      if (!id || isNaN(newOrder)) return;
+
+      try {
+        await fetch(`/api/admin/projects/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order: newOrder }),
+        });
+      } catch (err) {
+        console.error('Failed to update display order');
+      }
+    });
+  });
+
+  // Delete project button
+  document.querySelectorAll('.delete-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-id');
+      const title = btn.getAttribute('data-title');
+      if (!id) return;
+
+      if (confirm(`Are you sure you want to delete "${title}"? This will permanently delete the project and all upload files.`)) {
+        try {
+          const res = await fetch(`/api/admin/projects/${id}`, {
+            method: 'DELETE',
+          });
+          if (res.ok) window.location.reload();
+          else {
+            const data = await res.json();
+            alert(data.error || 'Failed to delete project');
+          }
+        } catch (err) {
+          alert('Error connecting to server');
+        }
+      }
+    });
+  });
+</script>

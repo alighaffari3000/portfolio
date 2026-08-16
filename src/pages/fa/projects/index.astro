@@ -1,0 +1,22 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Nav from '../../../components/Nav.astro';
+import Projects from '../../../components/Projects.astro';
+import Footer from '../../../components/Footer.astro';
+import { t } from '../../../lib/i18n';
+
+const locale = 'fa' as const;
+const strings = t(locale);
+---
+
+<Layout
+  locale={locale}
+  title={`${strings.projects.heading} — ${strings.siteTitle}`}
+  description={strings.siteDescription}
+>
+  <Nav locale={locale} />
+  <main class="min-h-screen pt-24 md:pt-32">
+    <Projects locale={locale} />
+  </main>
+  <Footer locale={locale} />
+</Layout>

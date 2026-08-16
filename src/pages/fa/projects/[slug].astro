@@ -1,0 +1,36 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Nav from '../../../components/Nav.astro';
+import Footer from '../../../components/Footer.astro';
+import CaseStudy from '../../../components/CaseStudy.astro';
+import { db } from '../../../lib/db';
+import { resolveProject, t } from '../../../lib/i18n';
+
+const locale = 'fa' as const;
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.rewrite('/404');
+}
+
+// Same record as the English route — the slug is shared across locales.
+const row = await db.project.findUnique({
+  where: { slug },
+  include: { gallery: { orderBy: { order: 'asc' } } },
+});
+
+if (!row || !row.published) {
+  return Astro.rewrite('/404');
+}
+
+const project = resolveProject(row, locale);
+const strings = t(locale);
+const pageTitle = `${project.title} — ${strings.projects.caseStudy}`;
+const metaDescription = project.summary || project.description || project.title;
+---
+
+<Layout locale={locale} title={pageTitle} description={metaDescription}>
+  <Nav locale={locale} />
+  <CaseStudy locale={locale} project={{ ...project, gallery: row.gallery }} />
+  <Footer locale={locale} />
+</Layout>

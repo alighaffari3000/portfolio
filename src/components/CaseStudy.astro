@@ -1,0 +1,201 @@
+---
+/**
+ * Case study body, shared by /projects/[slug] and /fa/projects/[slug].
+ * Every section is optional — nothing renders for an empty field.
+ */
+import { t, localizePath, resolveCaption, type Locale } from '../lib/i18n';
+
+interface GalleryImage {
+  id: string;
+  url: string;
+  caption?: string | null;
+  captionFa?: string | null;
+}
+
+interface Props {
+  locale: Locale;
+  project: {
+    title: string;
+    summary: string | null;
+    description: string | null;
+    problem: string | null;
+    solution: string | null;
+    architecture: string | null;
+    challenges: string | null;
+    results: string | null;
+    features: string[];
+    techStack: string[];
+    heroImage?: string | null;
+    githubUrl?: string | null;
+    demoUrl?: string | null;
+    gallery?: GalleryImage[];
+  };
+}
+
+const { locale, project } = Astro.props;
+const strings = t(locale);
+const cs = strings.caseStudy;
+const gallery = project.gallery ?? [];
+
+/* Accent per section, matching the original layout's colour coding. */
+const sections = [
+  { key: 'description', eyebrow: cs.overview, heading: cs.overviewHeading, body: project.description, accent: 'text-[var(--sec)] shiny-sec' },
+  { key: 'problem', eyebrow: cs.problem, heading: cs.problemHeading, body: project.problem, accent: 'text-rose-400' },
+  { key: 'solution', eyebrow: cs.solution, heading: cs.solutionHeading, body: project.solution, accent: 'text-emerald-400' },
+  { key: 'challenges', eyebrow: cs.challenges, heading: cs.challengesHeading, body: project.challenges, accent: 'text-purple-400' },
+  { key: 'results', eyebrow: cs.results, heading: cs.resultsHeading, body: project.results, accent: 'text-[var(--sec)] shiny-sec' },
+] as const;
+---
+
+<main class="min-h-screen text-[var(--white)] py-12 md:py-24">
+  <article class="max-w-4xl mx-auto space-y-12">
+    <div>
+      <a
+        href={localizePath('/projects', locale)}
+        class="inline-flex items-center gap-2 text-sm font-medium text-[var(--white-icon)] hover:text-[var(--white)] transition-colors"
+      >
+        {strings.projects.backToProjects}
+      </a>
+    </div>
+
+    <header class="space-y-4">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-[var(--sec)]"></span>
+        <span class="text-xs uppercase tracking-widest font-semibold text-[var(--sec)] shiny-sec">
+          {strings.projects.caseStudy}
+        </span>
+      </div>
+
+      <h1 class="text-4xl sm:text-6xl font-medium text-[var(--white)] leading-tight">
+        {project.title}
+      </h1>
+
+      {project.summary && (
+        <p class="text-lg sm:text-xl text-[var(--white-icon)] font-normal leading-relaxed whitespace-pre-line">
+          {project.summary}
+        </p>
+      )}
+
+      {project.techStack.length > 0 && (
+        <div class="flex flex-wrap gap-2 pt-2" dir="ltr">
+          {project.techStack.map((tech) => (
+            <span class="px-3 py-1 text-xs font-mono font-medium rounded-full bg-[#1414149c] border border-[var(--white-icon-tr)] text-[var(--white-icon)]">
+              {tech}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {(project.demoUrl || project.githubUrl) && (
+        <div class="flex flex-wrap items-center gap-4 pt-6 border-t border-[#ffffff10]">
+          {project.demoUrl && (
+            <a
+              href={project.demoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="px-5 py-2.5 rounded-full bg-[var(--sec)] text-black font-semibold text-sm hover:opacity-90 transition-all"
+            >
+              {strings.projects.liveDemo}
+            </a>
+          )}
+          {project.githubUrl && (
+            <a
+              href={project.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="px-5 py-2.5 rounded-full bg-[#1414149c] border border-[var(--white-icon-tr)] text-[var(--white)] font-semibold text-sm hover:bg-[var(--white-icon-tr)] transition-all"
+            >
+              {strings.projects.repository}
+            </a>
+          )}
+        </div>
+      )}
+    </header>
+
+    {project.heroImage && (
+      <div class="rounded-2xl overflow-hidden border border-[var(--white-icon-tr)] bg-[#1414149c]">
+        <img
+          src={project.heroImage}
+          alt={project.title}
+          class="w-full h-auto object-cover max-h-[500px]"
+        />
+      </div>
+    )}
+
+    <div class="space-y-10">
+      {sections.map((section) =>
+        section.body ? (
+          <section class="p-8 rounded-2xl bg-[#1414149c] border border-[var(--white-icon-tr)]">
+            <h2 class={`text-xs font-semibold uppercase tracking-widest mb-3 ${section.accent}`}>
+              {section.eyebrow}
+            </h2>
+            <h3 class="text-2xl font-medium text-[var(--white)] mb-4">{section.heading}</h3>
+            <div class="text-[var(--white-icon)] leading-relaxed whitespace-pre-line text-base">
+              {section.body}
+            </div>
+          </section>
+        ) : null
+      )}
+
+      {project.features.length > 0 && (
+        <section class="p-8 rounded-2xl bg-[#1414149c] border border-[var(--white-icon-tr)]">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-[var(--sec)] mb-3 shiny-sec">
+            {cs.features}
+          </h2>
+          <h3 class="text-2xl font-medium text-[var(--white)] mb-6">{cs.featuresHeading}</h3>
+          <ul class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {project.features.map((feature) => (
+              <li class="p-4 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] flex items-start gap-3">
+                <span class="text-[var(--sec)] font-bold text-lg leading-none">&bull;</span>
+                <span class="text-[var(--white-icon)] text-sm font-medium">{feature}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {project.architecture && (
+        <section class="p-8 rounded-2xl bg-[#1414149c] border border-[var(--white-icon-tr)]">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-3">
+            {cs.architecture}
+          </h2>
+          <h3 class="text-2xl font-medium text-[var(--white)] mb-4">{cs.architectureHeading}</h3>
+          <div
+            class="text-[var(--white-icon)] leading-relaxed whitespace-pre-line text-sm font-mono bg-[var(--background)] p-6 rounded-xl border border-[var(--white-icon-tr)] overflow-x-auto"
+            dir="ltr"
+          >
+            {project.architecture}
+          </div>
+        </section>
+      )}
+
+      {gallery.length > 0 && (
+        <section class="p-8 rounded-2xl bg-[#1414149c] border border-[var(--white-icon-tr)]">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-[var(--sec)] mb-3 shiny-sec">
+            {cs.gallery}
+          </h2>
+          <h3 class="text-2xl font-medium text-[var(--white)] mb-6">{cs.galleryHeading}</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {gallery.map((img) => {
+              const caption = resolveCaption(img, locale);
+              return (
+                <div class="rounded-xl overflow-hidden border border-[var(--white-icon-tr)] bg-[var(--background)] flex flex-col">
+                  <img
+                    src={img.url}
+                    alt={caption || project.title}
+                    class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                  {caption && (
+                    <p class="p-3 text-xs text-[var(--white-icon)] bg-[var(--background)] border-t border-[var(--white-icon-tr)]">
+                      {caption}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+    </div>
+  </article>
+</main>
