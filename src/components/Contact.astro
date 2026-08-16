@@ -47,7 +47,7 @@ const channels = [
             href={channel.href}
             target={channel.external ? "_blank" : undefined}
             rel={channel.external ? "noopener noreferrer" : undefined}
-            class="flex items-center gap-4 p-4 rounded-2xl border border-[var(--white-icon-tr)] bg-[#1414149c] text-[var(--white-icon)] hover:text-white hover:bg-[var(--white-icon-tr)] transition duration-300 ease-in-out"
+            class="flex items-center gap-4 p-4 rounded-2xl border border-[var(--surface-border)] bg-[var(--surface)] text-[var(--white-icon)] hover:text-white hover:bg-[var(--white-icon-tr)] transition duration-300 ease-in-out"
           >
             <span class="text-[var(--sec)]">
               <Fragment set:html={channel.icon} />

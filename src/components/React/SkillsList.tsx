@@ -45,7 +45,7 @@ const SkillsList = ({ heading, groups }: Props) => {
           <li key={group.title} className="w-full">
             <div
               onClick={() => toggleItem(group.title)}
-              className="md:w-[420px] w-full bg-[#1414149c] rounded-2xl text-start transition-all border border-[var(--white-icon-tr)] cursor-pointer overflow-hidden"
+              className="md:w-[420px] w-full bg-[var(--surface)] rounded-2xl text-start transition-all border border-[var(--surface-border)] cursor-pointer overflow-hidden"
             >
               <div className="flex items-center gap-3 p-4">
                 {GroupIcons[index % GroupIcons.length]}

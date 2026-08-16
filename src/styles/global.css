@@ -42,6 +42,29 @@
   --white: #dfdfdf;
   --white-icon: #f3f3f398;
   --white-icon-tr: #f3f3f310;
+
+  /*
+    Card surfaces. Deliberately translucent, not opaque: the aurora in
+    Backdrop.astro tints through them, which is what ties the cards to the page
+    instead of leaving them floating on it.
+
+    The old value was #1414149c — rgb(20,20,20) at 61% over a rgb(16,16,16)
+    page, which composites to about rgb(18,18,18). Two levels of grey apart from
+    the background is not a surface, it is a rounding error, which is why the
+    cards read as flat. This sits ~11 levels up with a slight cool cast so it
+    separates from the background without turning grey.
+  */
+  --surface: rgba(32, 32, 42, 0.58);
+  --surface-border: rgba(255, 255, 255, 0.09);
+
+  /*
+    For blocks nested INSIDE a card (code samples, list rows, gallery frames),
+    which need to read as recessed relative to their parent. These used
+    `--background` — opaque #101010, which punched a hole straight through the
+    aurora. Translucent and darker than --surface keeps the inset relationship
+    while still letting the backdrop tint through.
+  */
+  --surface-inset: rgba(12, 12, 18, 0.55);
 }
 
 /*

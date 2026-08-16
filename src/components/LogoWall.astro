@@ -56,16 +56,7 @@ const icons = entries
   .filter(Boolean) as { title: string; path: string; color: string }[];
 ---
 
-<div class="relative overflow-x-hidden py-8" dir="ltr">
-  <div
-    class="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[var(--background)] to-transparent z-20"
-  >
-  </div>
-  <div
-    class="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-[var(--background)] to-transparent z-20"
-  >
-  </div>
-
+<div class="logo-wall relative overflow-x-hidden py-8" dir="ltr">
   <div class="flex animate-scroll w-max will-change-transform">
     {
       [...icons, ...icons].map((icon, index) => (
@@ -93,6 +84,24 @@ const icons = entries
 </div>
 
 <style is:global>
+  /*
+    The marquee edges fade by masking the strip itself, NOT by laying opaque
+    `--background` gradients over it. Those gradients only worked while the page
+    behind was flat #101010 — once Backdrop.astro put an aurora, a grid and
+    grain back there, they read as two hard dark rectangles sitting on top of
+    the texture. A mask makes the logos genuinely fade to transparent, so
+    whatever is behind shows through and this cannot break again.
+  */
+  .logo-wall {
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 8rem,
+      #000 calc(100% - 8rem),
+      transparent 100%
+    );
+  }
+
   @keyframes scroll {
     0% {
       transform: translate3d(0, 0, 0);

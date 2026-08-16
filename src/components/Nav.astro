@@ -38,7 +38,7 @@ const navItems: NavItem[] = [
 <div class="flex justify-center w-full">
   <nav
     id="main-nav"
-    class="fixed left-1/2 -translate-x-1/2 z-[100] bg-[var(--background)] border border-1 border-transparent backdrop-blur-xl transition-all duration-500 ease-in-out md:top-6 md:bottom-auto bottom-0 w-[80%]"
+    class="fixed left-1/2 -translate-x-1/2 z-[100] border border-1 backdrop-blur-xl md:top-6 md:bottom-auto bottom-0 w-full md:w-[33rem]"
   >
     <div class="container mx-auto flex justify-center items-center p-3">
       <ul
@@ -90,15 +90,12 @@ const navItems: NavItem[] = [
     `translate` property — a separate property that COMPOSES with `transform`
     rather than overriding it. Declaring both shifted the nav a full -100%.
   */
+  /*
+    The compact pill is the only state — it used to be reached by scrolling,
+    with the width interpolated in JS from 80% down to 33rem. Now it is how the
+    nav starts, so nothing about it is scroll-driven.
+  */
   nav {
-    background-color: var(--background);
-    transition:
-      background-color 0.3s ease,
-      border-radius 0.3s ease,
-      border-color 0.3s ease;
-  }
-
-  nav.scrolling {
     background-color: rgba(20, 20, 20, 0.9);
     border-color: #ffffff10;
     border-radius: 9999px;
@@ -114,59 +111,19 @@ const navItems: NavItem[] = [
     color: white !important;
   }
 
+  /* On phones the nav is a full-width bottom bar, not a floating pill. */
   @media (max-width: 767px) {
     nav {
-      width: 100% !important;
+      width: 100%;
       bottom: 0;
       left: 50%;
       position: fixed;
       border-radius: 1rem 1rem 0 0;
-      border-color: #ffffff10;
-    }
-
-    nav.scrolling {
-      border-radius: 1rem 1rem 0 0;
-      background-color: rgba(20, 20, 20, 0.9);
     }
   }
 </style>
 
 <script>
-  const nav = document.getElementById("main-nav");
-  const maxScroll = 1000;
-  let rafId: number | null = null;
-
-  function updateNav() {
-    if (window.scrollY > 0) {
-      nav?.classList.add("scrolling");
-
-      const scrollProgress = Math.min(window.scrollY / maxScroll, 1);
-      const easeProgress = 1 - Math.pow(1 - scrollProgress, 4);
-
-      const minWidth = 528;
-      const maxWidth = window.innerWidth * 0.8;
-      const currentWidth = maxWidth - (maxWidth - minWidth) * easeProgress;
-
-      if (window.innerWidth >= 768) {
-        nav?.style.setProperty("width", `${currentWidth}px`);
-      }
-    } else {
-      nav?.classList.remove("scrolling");
-      nav?.style.setProperty("width", "80%");
-    }
-    rafId = null;
-  }
-
-  window.addEventListener(
-    "scroll",
-    () => {
-      if (!rafId) {
-        rafId = requestAnimationFrame(updateNav);
-      }
-    },
-    { passive: true }
-  );
-
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener("click", function (e) {
       e.preventDefault();

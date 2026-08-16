@@ -42,7 +42,7 @@ const hero = strings.hero;
           rel="noopener noreferrer"
           href={profile.githubUrl}
           aria-label="GitHub"
-          class="text-[var(--white-icon)] hover:text-white transition duration-300 ease-in-out border border-1 border-[var(--white-icon-tr)] p-3 rounded-xl bg-[#1414149c] hover:bg-[var(--white-icon-tr)]"
+          class="text-[var(--white-icon)] hover:text-white transition duration-300 ease-in-out border border-1 border-[var(--surface-border)] p-3 rounded-xl bg-[var(--surface)] hover:bg-[var(--white-icon-tr)]"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -60,7 +60,7 @@ const hero = strings.hero;
           rel="noopener noreferrer"
           href={profile.telegramUrl}
           aria-label="Telegram"
-          class="text-[var(--white-icon)] hover:text-white transition duration-300 ease-in-out border border-1 border-[var(--white-icon-tr)] p-3 rounded-xl bg-[#1414149c] hover:bg-[var(--white-icon-tr)]"
+          class="text-[var(--white-icon)] hover:text-white transition duration-300 ease-in-out border border-1 border-[var(--surface-border)] p-3 rounded-xl bg-[var(--surface)] hover:bg-[var(--white-icon-tr)]"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -76,7 +76,7 @@ const hero = strings.hero;
         <a
           href={`tel:${profile.phone}`}
           aria-label={strings.contact.phone}
-          class="text-[var(--white-icon)] hover:text-white transition duration-300 ease-in-out border border-1 border-[var(--white-icon-tr)] p-3 rounded-xl bg-[#1414149c] hover:bg-[var(--white-icon-tr)]"
+          class="text-[var(--white-icon)] hover:text-white transition duration-300 ease-in-out border border-1 border-[var(--surface-border)] p-3 rounded-xl bg-[var(--surface)] hover:bg-[var(--white-icon-tr)]"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -94,10 +94,17 @@ const hero = strings.hero;
 
     <LogoWall />
 
-    <div class="flex flex-col lg:flex-row items-center gap-8">
+    <!-- `lg:items-stretch` is what makes the glitch panel match the height of the
+         skills accordion beside it; below lg the two are stacked, so the fixed
+         square sizing still applies there.
+
+         The lg padding-top drops the panel past the "What I do?" heading so its
+         top edge lines up with the first accordion row rather than the heading:
+         36px (the md offset) + 40px heading line-box + 24px heading gap. -->
+    <div class="flex flex-col lg:flex-row items-center lg:items-stretch gap-8">
       <SkillsList client:load heading={strings.services.heading} groups={strings.services.groups} />
       <div
-        class="flex justify-center md:w-full md:h-[292px] size-[290px] pt-3 md:pt-9"
+        class="flex justify-center w-[290px] h-[290px] md:w-full md:h-[292px] lg:h-auto pt-3 md:pt-9 lg:pt-25"
       >
         <LetterGlitch
           client:load

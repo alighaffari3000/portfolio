@@ -1,0 +1,160 @@
+---
+/*
+  Ambient page backdrop. Rendered once per page from Layout.astro, behind all
+  content. Pure CSS and `position: fixed`, so it costs nothing at runtime and
+  stays put while the page scrolls — long pages never fall back to flat black.
+
+  Three static layers, painted bottom to top: the aurora glow on the element
+  itself, a masked line grid on ::before, and a grain wash on ::after.
+
+  The cursor spotlight is a SEPARATE sibling element, not a fourth layer on
+  .backdrop, because .backdrop is mirrored with scaleX(-1) on Persian pages —
+  inside it, the spotlight would track the mouse in reverse.
+*/
+---
+
+<div class="backdrop" aria-hidden="true"></div>
+<div class="spotlight" aria-hidden="true"></div>
+
+<style>
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    /*
+      A single soft pool of the accent purple, high on the start side behind
+      the hero headline. Anchored off-canvas above the viewport so only its
+      falloff is ever visible.
+    */
+    background: radial-gradient(
+      60rem 45rem at 12% -10%,
+      rgba(164, 118, 255, 0.2),
+      transparent 62%
+    );
+  }
+
+  /*
+    A faint 1px line grid for texture. It sits on ::before rather than in the
+    stack above because the mask has to apply to the grid alone — masking the
+    element itself would eat the aurora with it.
+
+    The mask is what keeps this from looking like graph paper: the grid is only
+    really present behind the hero and has dissolved by mid-viewport. Like the
+    aurora it is fixed, so the fade tracks the viewport, not the document.
+  */
+  .backdrop::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size: 4rem 4rem;
+    mask-image: linear-gradient(to bottom, #000 0%, transparent 65%);
+  }
+
+  /*
+    Grain. This is load-bearing, not decoration: the aurora is a wide, very
+    low-contrast ramp across a dark field, which is exactly the case 8-bit
+    panels cannot resolve — without dithering it renders as visible concentric
+    bands instead of a smooth falloff. The noise breaks up those steps.
+
+    It sits on ::after so it paints over both the aurora and the grid, and is
+    an inline SVG data URI so there is no extra network request. The tile is
+    160px and repeats; at this opacity the repeat is not perceptible.
+  */
+  .backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.08;
+    background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
+    background-size: 160px 160px;
+  }
+
+  /*
+    The gradient positions are physical percentages, so on Persian pages the
+    composition would sit against the reading direction. Mirroring the whole
+    layer is cheaper than duplicating the gradient stack.
+  */
+  :global([dir='rtl']) .backdrop {
+    transform: scaleX(-1);
+  }
+
+  /*
+    Cursor spotlight. Sits after .backdrop in the DOM at the same z-index, so it
+    paints over the grain. The position comes from --mx/--my, set by the script
+    below; the defaults keep it centred if the script never runs.
+
+    It starts invisible and fades in on first pointer movement rather than
+    popping into existence under a cursor that has not moved yet.
+  */
+  .spotlight {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 400ms ease;
+    background: radial-gradient(
+      17rem 17rem at var(--mx, 50%) var(--my, 50%),
+      rgba(164, 118, 255, 0.2),
+      transparent 70%
+    );
+  }
+
+  .spotlight.is-active {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  /*
+    Gated twice over. `pointer: fine` keeps this off touch devices, where there
+    is no hovering cursor to follow and the listener would only burn battery;
+    `prefers-reduced-motion` respects users who have asked for less movement.
+    When either gate closes we never bind a listener at all, and the element
+    stays at opacity 0 — inert rather than merely hidden.
+  */
+  const spotlight = document.querySelector<HTMLElement>(".spotlight");
+  const hasFinePointer = matchMedia("(pointer: fine)").matches;
+  const prefersReducedMotion = matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+
+  if (spotlight && hasFinePointer && !prefersReducedMotion) {
+    let pointerX = 0;
+    let pointerY = 0;
+    let frame: number | null = null;
+
+    /*
+      Moving a full-screen gradient repaints the whole layer, so the write is
+      throttled to one per frame. pointermove can fire far more often than that.
+    */
+    function paint() {
+      spotlight!.style.setProperty("--mx", `${pointerX}px`);
+      spotlight!.style.setProperty("--my", `${pointerY}px`);
+      spotlight!.classList.add("is-active");
+      frame = null;
+    }
+
+    window.addEventListener(
+      "pointermove",
+      (event) => {
+        // The element is `fixed`, so viewport coords map straight onto it.
+        pointerX = event.clientX;
+        pointerY = event.clientY;
+        if (frame === null) frame = requestAnimationFrame(paint);
+      },
+      { passive: true }
+    );
+
+    // Fade out when the cursor leaves the window, so it does not stall at the
+    // last known edge position.
+    document.addEventListener("mouseleave", () => {
+      spotlight.classList.remove("is-active");
+    });
+  }
+</script>

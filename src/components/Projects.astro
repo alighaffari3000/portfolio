@@ -27,7 +27,7 @@ const projects = rows.map((row) => resolveProject(row, locale));
     <h3 class="text-4xl md:text-5xl font-medium mb-8">{strings.projects.heading}</h3>
 
     {projects.length === 0 ? (
-      <div class="p-8 rounded-2xl border border-[var(--white-icon-tr)] bg-[#1414149c] text-center text-[var(--white-icon)]">
+      <div class="p-8 rounded-2xl border border-[var(--surface-border)] bg-[var(--surface)] text-center text-[var(--white-icon)]">
         {strings.projects.empty}
       </div>
     ) : (
@@ -43,7 +43,7 @@ const projects = rows.map((row) => resolveProject(row, locale));
                   href={localizePath(`/projects/${project.slug}`, locale)}
                   class="block"
                 >
-                  <div class="rounded-2xl overflow-hidden shadow-lg border border-[var(--white-icon-tr)] bg-[#1414149c] mb-4">
+                  <div class="rounded-2xl overflow-hidden shadow-lg border border-[var(--surface-border)] bg-[var(--surface)] mb-4">
                     {project.heroImage ? (
                       <img
                         src={project.heroImage}
@@ -52,7 +52,7 @@ const projects = rows.map((row) => resolveProject(row, locale));
                       />
                     ) : (
                       /* Neutral placeholder — never stretch a logo to fill the card. */
-                      <div class="w-full h-48 md:h-72 flex items-center justify-center bg-[#141414]">
+                      <div class="w-full h-48 md:h-72 flex items-center justify-center bg-[var(--surface)]">
                         <span class="text-6xl font-medium text-[var(--white-icon-tr)] select-none">
                           {project.title.trim().charAt(0).toUpperCase()}
                         </span>
@@ -78,7 +78,7 @@ const projects = rows.map((row) => resolveProject(row, locale));
                           target="_blank"
                           href={project.githubUrl}
                           aria-label="GitHub"
-                          class="size-14 flex justify-center items-center text-[var(--white-icon)] hover:text-white transition duration-300 ease-in-out border border-1 border-[var(--white-icon-tr)] p-3 rounded-xl bg-[#1414149c] hover:bg-[var(--white-icon-tr)]"
+                          class="size-14 flex justify-center items-center text-[var(--white-icon)] hover:text-white transition duration-300 ease-in-out border border-1 border-[var(--surface-border)] p-3 rounded-xl bg-[var(--surface)] hover:bg-[var(--white-icon-tr)]"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -93,7 +93,7 @@ const projects = rows.map((row) => resolveProject(row, locale));
                       <a
                         href={localizePath(`/projects/${project.slug}`, locale)}
                         aria-label="View Case Study"
-                        class="size-14 flex justify-center items-center text-[var(--white-icon)] hover:text-white transition duration-300 ease-in-out border border-1 border-[var(--white-icon-tr)] p-3 rounded-xl bg-[#1414149c] hover:bg-[var(--white-icon-tr)]"
+                        class="size-14 flex justify-center items-center text-[var(--white-icon)] hover:text-white transition duration-300 ease-in-out border border-1 border-[var(--surface-border)] p-3 rounded-xl bg-[var(--surface)] hover:bg-[var(--white-icon-tr)]"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"

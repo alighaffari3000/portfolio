@@ -29,6 +29,9 @@ uploads/
 # jetbrains setting folder
 .idea/
 
+# claude code local config (launch.json, settings)
+.claude/
+
 
 # graphify knowledge graph output
 graphify-out/

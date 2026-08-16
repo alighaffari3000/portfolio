@@ -79,7 +79,7 @@ const sections = [
       {project.techStack.length > 0 && (
         <div class="flex flex-wrap gap-2 pt-2" dir="ltr">
           {project.techStack.map((tech) => (
-            <span class="px-3 py-1 text-xs font-mono font-medium rounded-full bg-[#1414149c] border border-[var(--white-icon-tr)] text-[var(--white-icon)]">
+            <span class="px-3 py-1 text-xs font-mono font-medium rounded-full bg-[var(--surface)] border border-[var(--surface-border)] text-[var(--white-icon)]">
               {tech}
             </span>
           ))}
@@ -103,7 +103,7 @@ const sections = [
               href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              class="px-5 py-2.5 rounded-full bg-[#1414149c] border border-[var(--white-icon-tr)] text-[var(--white)] font-semibold text-sm hover:bg-[var(--white-icon-tr)] transition-all"
+              class="px-5 py-2.5 rounded-full bg-[var(--surface)] border border-[var(--surface-border)] text-[var(--white)] font-semibold text-sm hover:bg-[var(--white-icon-tr)] transition-all"
             >
               {strings.projects.repository}
             </a>
@@ -113,7 +113,7 @@ const sections = [
     </header>
 
     {project.heroImage && (
-      <div class="rounded-2xl overflow-hidden border border-[var(--white-icon-tr)] bg-[#1414149c]">
+      <div class="rounded-2xl overflow-hidden border border-[var(--surface-border)] bg-[var(--surface)]">
         <img
           src={project.heroImage}
           alt={project.title}
@@ -125,7 +125,7 @@ const sections = [
     <div class="space-y-10">
       {sections.map((section) =>
         section.body ? (
-          <section class="p-8 rounded-2xl bg-[#1414149c] border border-[var(--white-icon-tr)]">
+          <section class="p-8 rounded-2xl bg-[var(--surface)] border border-[var(--surface-border)]">
             <h2 class={`text-xs font-semibold uppercase tracking-widest mb-3 ${section.accent}`}>
               {section.eyebrow}
             </h2>
@@ -138,14 +138,14 @@ const sections = [
       )}
 
       {project.features.length > 0 && (
-        <section class="p-8 rounded-2xl bg-[#1414149c] border border-[var(--white-icon-tr)]">
+        <section class="p-8 rounded-2xl bg-[var(--surface)] border border-[var(--surface-border)]">
           <h2 class="text-xs font-semibold uppercase tracking-widest text-[var(--sec)] mb-3 shiny-sec">
             {cs.features}
           </h2>
           <h3 class="text-2xl font-medium text-[var(--white)] mb-6">{cs.featuresHeading}</h3>
           <ul class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {project.features.map((feature) => (
-              <li class="p-4 rounded-xl bg-[var(--background)] border border-[var(--white-icon-tr)] flex items-start gap-3">
+              <li class="p-4 rounded-xl bg-[var(--surface-inset)] border border-[var(--surface-border)] flex items-start gap-3">
                 <span class="text-[var(--sec)] font-bold text-lg leading-none">&bull;</span>
                 <span class="text-[var(--white-icon)] text-sm font-medium">{feature}</span>
               </li>
@@ -155,13 +155,13 @@ const sections = [
       )}
 
       {project.architecture && (
-        <section class="p-8 rounded-2xl bg-[#1414149c] border border-[var(--white-icon-tr)]">
+        <section class="p-8 rounded-2xl bg-[var(--surface)] border border-[var(--surface-border)]">
           <h2 class="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-3">
             {cs.architecture}
           </h2>
           <h3 class="text-2xl font-medium text-[var(--white)] mb-4">{cs.architectureHeading}</h3>
           <div
-            class="text-[var(--white-icon)] leading-relaxed whitespace-pre-line text-sm font-mono bg-[var(--background)] p-6 rounded-xl border border-[var(--white-icon-tr)] overflow-x-auto"
+            class="text-[var(--white-icon)] leading-relaxed whitespace-pre-line text-sm font-mono bg-[var(--surface-inset)] p-6 rounded-xl border border-[var(--surface-border)] overflow-x-auto"
             dir="ltr"
           >
             {project.architecture}
@@ -170,7 +170,7 @@ const sections = [
       )}
 
       {gallery.length > 0 && (
-        <section class="p-8 rounded-2xl bg-[#1414149c] border border-[var(--white-icon-tr)]">
+        <section class="p-8 rounded-2xl bg-[var(--surface)] border border-[var(--surface-border)]">
           <h2 class="text-xs font-semibold uppercase tracking-widest text-[var(--sec)] mb-3 shiny-sec">
             {cs.gallery}
           </h2>
@@ -179,14 +179,14 @@ const sections = [
             {gallery.map((img) => {
               const caption = resolveCaption(img, locale);
               return (
-                <div class="rounded-xl overflow-hidden border border-[var(--white-icon-tr)] bg-[var(--background)] flex flex-col">
+                <div class="rounded-xl overflow-hidden border border-[var(--surface-border)] bg-[var(--surface-inset)] flex flex-col">
                   <img
                     src={img.url}
                     alt={caption || project.title}
                     class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
                   />
                   {caption && (
-                    <p class="p-3 text-xs text-[var(--white-icon)] bg-[var(--background)] border-t border-[var(--white-icon-tr)]">
+                    <p class="p-3 text-xs text-[var(--white-icon)] bg-[var(--surface-inset)] border-t border-[var(--surface-border)]">
                       {caption}
                     </p>
                   )}
