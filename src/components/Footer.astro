@@ -48,7 +48,12 @@ const socials = [
             ))
           }
         </div>
-        <LikeButton client:load />
+        <LikeButton
+          client:load
+          label={strings.footer.likes}
+          actionLabel={strings.footer.like}
+          likedLabel={strings.footer.liked}
+        />
       </div>
 
       <div class="flex flex-col items-center space-y-6">

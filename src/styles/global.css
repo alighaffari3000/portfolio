@@ -99,6 +99,8 @@
     color: var(--background);
   }
 
+  /* Focus ring lives outside this layer — see the rule below the block. */
+
   /* Scrollbar styles */
   ::-webkit-scrollbar {
     width: 12px;
@@ -123,4 +125,25 @@
     scrollbar-width: thin;
     scrollbar-color: var(--white-icon-tr) var(--background);
   }
+}
+
+/*
+  Every focusable element relied on the UA default focus ring, which is a thin
+  dark outline — effectively invisible against a #101010 page. All 22 focusable
+  elements on the home page had no perceptible focus state, so keyboard users
+  had no way to tell where they were (WCAG 2.4.7).
+
+  `:focus-visible` rather than `:focus` so the ring appears for keyboard and
+  other non-pointer input but not on mouse clicks. The offset keeps it clear of
+  the rounded card borders instead of tracing them.
+
+  Deliberately UNLAYERED, unlike the base rules above. Unlayered CSS beats
+  layered CSS regardless of specificity — the same asymmetry the comment at the
+  top of this file describes. Inside `@layer base` any stray unlayered
+  component rule touching `outline` would silently win and put us back to an
+  invisible focus state; out here nothing can quietly undo it.
+*/
+:focus-visible {
+  outline: 2px solid var(--sec);
+  outline-offset: 3px;
 }

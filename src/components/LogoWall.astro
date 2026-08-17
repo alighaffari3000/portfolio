@@ -119,4 +119,18 @@ const icons = entries
       animation-duration: 50s;
     }
   }
+
+  /*
+    An endlessly scrolling strip is exactly the kind of unstoppable ambient
+    motion WCAG 2.2.2 is about. Stopping the animation parks it at translate 0,
+    which shows the first logos — the list stays readable, it just holds still.
+    `will-change` comes off too: it is a hint for an animation that no longer
+    runs, and leaving it promotes a layer for nothing.
+  */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-scroll {
+      animation: none;
+      will-change: auto;
+    }
+  }
 </style>

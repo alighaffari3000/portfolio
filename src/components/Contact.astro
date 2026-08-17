@@ -53,7 +53,10 @@ const channels = [
               <Fragment set:html={channel.icon} />
             </span>
             <span class="min-w-0">
-              <span class="block text-xs uppercase tracking-wide opacity-70">
+              <!-- No `opacity-70` here: it multiplied with the parent's
+                   --white-icon alpha (0.6) down to an effective 0.42, which
+                   measured 3.77:1 against the page — under the 4.5:1 floor. -->
+              <span class="block text-xs uppercase tracking-wide">
                 {channel.label}
               </span>
               <span class="block text-base truncate" dir="ltr">

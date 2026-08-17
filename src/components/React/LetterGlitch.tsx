@@ -193,23 +193,64 @@ const LetterGlitch = ({
 
     context.current = canvas.getContext("2d");
     resizeCanvas();
-    animate();
+
+    /*
+      A requestAnimationFrame loop that never stops is the most expensive thing
+      on the page, and it used to run regardless of whether anyone could see it
+      or wanted it. Two gates now govern it:
+
+      - `prefers-reduced-motion`: paint one static frame of glitched characters
+        and stop. The panel still reads as itself; it just holds still, rather
+        than the blanket `animation: none` that would leave an empty box.
+      - IntersectionObserver: the panel sits in the hero, so scrolling past it
+        left the loop burning frames against an offscreen canvas for the whole
+        rest of the page.
+    */
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const stop = () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+    };
+
+    const start = () => {
+      if (animationRef.current === null) animate();
+    };
+
+    let observer: IntersectionObserver | null = null;
+
+    if (reduceMotion) {
+      updateLetters();
+      drawLetters();
+    } else {
+      observer = new IntersectionObserver(
+        ([entry]) => (entry.isIntersecting ? start() : stop()),
+        { rootMargin: "100px" }
+      );
+      observer.observe(canvas);
+    }
 
     let resizeTimeout: NodeJS.Timeout;
 
     const handleResize = () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
-        if (animationRef.current) cancelAnimationFrame(animationRef.current);
+        stop();
         resizeCanvas();
-        animate();
+        // Resizing must not restart a loop the user opted out of.
+        if (reduceMotion) drawLetters();
+        else start();
       }, 100);
     };
 
     window.addEventListener("resize", handleResize);
 
     return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      stop();
+      observer?.disconnect();
+      clearTimeout(resizeTimeout);
       window.removeEventListener("resize", handleResize);
     };
   }, [glitchSpeed, smooth]);

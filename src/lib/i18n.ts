@@ -146,7 +146,17 @@ export const ui = {
       github: 'GitHub',
       cta: 'If you are building an AI product, an agent, an enterprise chatbot, an analysis platform or an intelligent automation, I can take it from design through to final deployment.',
     },
-    footer: { builtWith: 'Built with', styledWith: 'Styled with', rights: 'All rights reserved.' },
+    footer: {
+      builtWith: 'Built with',
+      styledWith: 'Styled with',
+      rights: 'All rights reserved.',
+      likes: 'Likes',
+      like: 'Like this site',
+      liked: 'You already liked this site',
+    },
+    /* Strings that exist only for assistive technology — never rendered as
+       visible copy, but they still have to be translated. */
+    a11y: { skipToContent: 'Skip to content' },
     notFound: {
       title: 'Page not found',
       body: 'The project case study or page you are looking for does not exist or has been unpublished.',
@@ -262,7 +272,15 @@ export const ui = {
       github: 'گیت‌هاب',
       cta: 'اگر به دنبال توسعه یک محصول هوش مصنوعی، AI Agent، چت‌بات سازمانی، سامانه تحلیل اطلاعات یا اتوماسیون هوشمند هستید، پروژه را از مرحله طراحی تا استقرار نهایی به‌صورت کامل اجرا می‌کنم.',
     },
-    footer: { builtWith: 'ساخته‌شده با', styledWith: 'استایل با', rights: 'تمامی حقوق محفوظ است.' },
+    footer: {
+      builtWith: 'ساخته‌شده با',
+      styledWith: 'استایل با',
+      rights: 'تمامی حقوق محفوظ است.',
+      likes: 'پسند',
+      like: 'پسندیدن این سایت',
+      liked: 'این سایت را پسندیده‌اید',
+    },
+    a11y: { skipToContent: 'رفتن به محتوای اصلی' },
     notFound: {
       title: 'صفحه پیدا نشد',
       body: 'صفحه یا مطالعه موردی موردنظر وجود ندارد یا از حالت انتشار خارج شده است.',

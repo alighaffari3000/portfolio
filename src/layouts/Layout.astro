@@ -51,6 +51,43 @@ const pathname = Astro.url.pathname;
     class="bg-[var(--background)] sm:px-28 lg:px-20 px-9 text-[var(--white)] min-h-screen antialiased selection:bg-[var(--sec)] selection:text-[var(--background)]"
   >
     <Backdrop />
-    <slot />
+    <!-- The nav is fixed and comes first in every page's markup, so without
+         these a keyboard user tabbed through all four nav links on every
+         navigation, and screen reader users had no `main` landmark to jump to. -->
+    <a class="skip-link" href="#main-content">{strings.a11y.skipToContent}</a>
+    <main id="main-content" tabindex="-1">
+      <slot />
+    </main>
+
+    <style>
+      /*
+        Offscreen until focused rather than `display: none`, which would take it
+        out of the tab order and defeat the point. Logical properties so it
+        lands on the correct side on the RTL Persian pages.
+      */
+      .skip-link {
+        position: absolute;
+        inset-inline-start: -9999px;
+        top: 0;
+        z-index: 200;
+      }
+
+      .skip-link:focus {
+        inset-inline-start: 1rem;
+        top: 1rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 9999px;
+        background-color: var(--surface);
+        border: 1px solid var(--surface-border);
+        color: var(--white);
+        backdrop-filter: blur(12px);
+      }
+
+      /* `tabindex="-1"` makes main focusable for the skip link, which otherwise
+         gives it a focus ring on every skip. */
+      main:focus {
+        outline: none;
+      }
+    </style>
   </body>
 </html>

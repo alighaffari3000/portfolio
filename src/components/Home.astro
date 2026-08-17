@@ -138,4 +138,15 @@ const hero = strings.hero;
       background-position: 0% 50%;
     }
   }
+
+  /*
+    The sheen loops forever with nothing to trigger or stop it. Holding it at
+    the resting position keeps the gradient fill — only the travel stops.
+  */
+  @media (prefers-reduced-motion: reduce) {
+    .shiny-sec {
+      animation: none;
+      background-position: 0% 50%;
+    }
+  }
 </style>
