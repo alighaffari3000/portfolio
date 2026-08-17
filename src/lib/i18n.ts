@@ -40,9 +40,9 @@ export const dir = (locale: Locale) => (locale === 'fa' ? 'rtl' : 'ltr');
 export const ui = {
   en: {
     htmlLang: 'en',
-    siteTitle: 'Ali Ghaffari — AI & LLM Engineer',
+    siteTitle: 'Ali Ghaffari | AI & LLM Engineer',
     siteDescription:
-      'AI engineer building production AI products: agents, multi-agent systems, RAG pipelines and LLM applications — from architecture to deployment.',
+      'AI engineer building production AI products: agents, multi-agent systems, RAG pipelines and LLM applications, from architecture to deployment.',
     nav: { home: 'Home', projects: 'Projects', contact: 'Contact', switchTo: 'فارسی' },
     hero: {
       greeting: "Hi, I'm Ali Ghaffari",
@@ -51,8 +51,10 @@ export const ui = {
       taglineBefore: 'Designing and shipping production ',
       taglineHighlight: 'AI products',
       taglineAfter:
-        ' — intelligent agents, multi-agent systems and LLM applications — from architecture through to deployment.',
+        ': intelligent agents, multi-agent systems and LLM applications, from architecture through to deployment.',
       stat: '30+ projects delivered',
+      ctaWork: 'View my work',
+      ctaContact: 'Get in touch',
     },
     services: {
       heading: 'What I do?',
@@ -166,9 +168,9 @@ export const ui = {
 
   fa: {
     htmlLang: 'fa',
-    siteTitle: 'علی غفاری — توسعه‌دهنده و متخصص هوش مصنوعی',
+    siteTitle: 'علی غفاری | توسعه‌دهنده و متخصص هوش مصنوعی',
     siteDescription:
-      'طراحی و پیاده‌سازی محصولات مبتنی بر هوش مصنوعی: ایجنت، سیستم‌های چندعامله، سامانه‌های RAG و اپلیکیشن‌های مبتنی بر مدل‌های زبانی بزرگ — از معماری تا استقرار.',
+      'طراحی و پیاده‌سازی محصولات مبتنی بر هوش مصنوعی: ایجنت، سیستم‌های چندعامله، سامانه‌های RAG و اپلیکیشن‌های مبتنی بر مدل‌های زبانی بزرگ، از معماری تا استقرار.',
     nav: { home: 'خانه', projects: 'پروژه‌ها', contact: 'تماس', switchTo: 'English' },
     hero: {
       greeting: 'سلام، من علی غفاری هستم',
@@ -177,8 +179,10 @@ export const ui = {
       taglineBefore: 'طراحی و پیاده‌سازی ',
       taglineHighlight: 'محصولات هوش مصنوعی',
       taglineAfter:
-        ' — ایجنت‌های هوشمند، سیستم‌های چندعامله و اپلیکیشن‌های مبتنی بر مدل‌های زبانی بزرگ — از معماری تا استقرار نهایی.',
+        ': ایجنت‌های هوشمند، سیستم‌های چندعامله و اپلیکیشن‌های مبتنی بر مدل‌های زبانی بزرگ، از معماری تا استقرار نهایی.',
       stat: 'بیش از ۳۰ پروژه اجراشده',
+      ctaWork: 'مشاهده پروژه‌ها',
+      ctaContact: 'تماس با من',
     },
     services: {
       heading: 'چه کاری انجام می‌دهم؟',

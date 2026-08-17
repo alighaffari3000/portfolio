@@ -43,7 +43,7 @@ const SkillsList = ({ heading, groups }: Props) => {
     <div className="text-start pt-3 md:pt-9 w-full">
       {/* h2, not h3: this is a top-level section under the page h1, and as an
           h3 it skipped a level in the document outline. */}
-      <h2 className="text-[var(--white)] text-3xl md:text-4xl font-medium md:mb-6">{heading}</h2>
+      <h2 className="reveal text-[var(--white)] heading-sub font-medium md:mb-6">{heading}</h2>
       <ul className="space-y-4 mt-4 text-lg">
         {groups.map((group, index) => {
           const isOpen = openItem === group.title;
@@ -51,7 +51,11 @@ const SkillsList = ({ heading, groups }: Props) => {
           const buttonId = `${baseId}-trigger-${index}`;
 
           return (
-            <li key={group.title} className="w-full">
+            /* `.reveal` sits on the <li>, not on the <ul>, so the four groups
+               come up one after another — each one drives its own timeline off
+               its own position. The panel inside animates max-height on toggle,
+               which is a separate, unrelated transition. */
+            <li key={group.title} className="reveal w-full">
               <div className="md:w-[420px] w-full bg-[var(--surface)] rounded-2xl border border-[var(--surface-border)] overflow-hidden">
                 {/*
                   A real <button>, not a div with onClick. As a div this was

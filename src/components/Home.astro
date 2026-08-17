@@ -2,7 +2,7 @@
 import LetterGlitch from "./React/LetterGlitch.tsx";
 import LogoWall from "./LogoWall.astro";
 import SkillsList from "./React/SkillsList.tsx";
-import { t, profile, type Locale } from "../lib/i18n";
+import { t, profile, localizePath, type Locale } from "../lib/i18n";
 
 interface Props {
   locale?: Locale;
@@ -22,8 +22,11 @@ const hero = strings.hero;
       <div
         class="flex flex-col lg:flex-row lg:items-center space-y-4 lg:space-y-0 lg:gap-8 md:gap-4"
       >
+        <!-- `text-pretty` is gone along with the size pair: it only affects how
+             a line breaks, and `whitespace-nowrap` right next to it forbids
+             breaking at all, so it could never have done anything here. -->
         <h1
-          class="text-[var(--white)] text-5xl md:text-6xl font-medium text-pretty leading-tight whitespace-nowrap"
+          class="text-[var(--white)] heading-hero font-medium leading-tight whitespace-nowrap"
         >
           {hero.titleLine1} <br /> {hero.titleLine2}
         </h1>
@@ -35,6 +38,35 @@ const hero = strings.hero;
       </div>
 
       <p class="text-sm text-[var(--white-icon)] pt-2">{hero.stat}</p>
+
+      <!--
+        The site had no button at all before this: three round icon links were
+        the only thing to press anywhere on the page, and none of them said
+        where they went. These deliberately reuse the filled/outlined pair
+        already used for "Live demo" and "GitHub repository" on the case study
+        pages, so the site has one button language rather than two.
+
+        `py-3` on 1rem text clears 44px of height, which the icon links below
+        only reach through their own padding.
+
+        The contact link is a bare `#contact` rather than `/#contact`: this
+        component only ever renders on the home page, and a bare hash is
+        guaranteed to be handled as an in-page scroll rather than routed.
+      -->
+      <div class="flex flex-wrap items-center gap-3 pt-5">
+        <a
+          href={localizePath('/projects', locale)}
+          class="px-6 py-3 rounded-full bg-[var(--sec)] text-black font-semibold text-base hover:opacity-90 transition-opacity"
+        >
+          {hero.ctaWork}
+        </a>
+        <a
+          href="#contact"
+          class="px-6 py-3 rounded-full bg-[var(--surface)] border border-[var(--surface-border)] text-[var(--white)] font-semibold text-base hover:bg-[var(--white-icon-tr)] transition-colors"
+        >
+          {hero.ctaContact}
+        </a>
+      </div>
 
       <div class="flex justify-start gap-2 pt-3 md:pt-6">
         <a
@@ -92,7 +124,12 @@ const hero = strings.hero;
       </div>
     </div>
 
-    <LogoWall />
+    <!-- The hero block above gets no `.reveal`: it is already on screen at
+         scroll 0, where an entry-range animation resolves to its end state
+         anyway. Marking it would add nothing and risk a flash on load. -->
+    <div class="reveal">
+      <LogoWall />
+    </div>
 
     <!-- `lg:items-stretch` is what makes the glitch panel match the height of the
          skills accordion beside it; below lg the two are stacked, so the fixed
@@ -104,7 +141,7 @@ const hero = strings.hero;
     <div class="flex flex-col lg:flex-row items-center lg:items-stretch gap-8">
       <SkillsList client:load heading={strings.services.heading} groups={strings.services.groups} />
       <div
-        class="flex justify-center w-[290px] h-[290px] md:w-full md:h-[292px] lg:h-auto pt-3 md:pt-9 lg:pt-25"
+        class="reveal flex justify-center w-[290px] h-[290px] md:w-full md:h-[292px] lg:h-auto pt-3 md:pt-9 lg:pt-25"
       >
         <LetterGlitch
           client:load

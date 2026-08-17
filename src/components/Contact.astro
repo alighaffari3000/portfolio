@@ -34,14 +34,16 @@ const channels = [
 ];
 ---
 
-<section id="contact" class="w-full py-12 border-t border-[var(--surface-border)]">
+<section id="contact" class="w-full py-16 md:py-24">
   <div class="max-w-5xl mx-auto">
     <!-- The eyebrow is a label, not a heading. As an <h2> above an <h3> it
          inverted the outline: screen readers got the 18px kicker as the
          section's heading and the real 48px title as its subsection. -->
-    <p class="text-lg text-[var(--sec)] mb-2 shiny-sec">{c.eyebrow}</p>
-    <h2 class="text-4xl md:text-5xl font-medium mb-4">{c.heading}</h2>
-    <p class="text-[var(--white-icon)] mb-8 max-w-2xl">{c.intro}</p>
+    <div class="reveal">
+      <p class="text-lg text-[var(--sec)] mb-2 shiny-sec">{c.eyebrow}</p>
+      <h2 class="heading-section font-medium mb-4">{c.heading}</h2>
+      <p class="text-[var(--white-icon)] mb-8 max-w-2xl">{c.intro}</p>
+    </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       {
@@ -50,7 +52,7 @@ const channels = [
             href={channel.href}
             target={channel.external ? "_blank" : undefined}
             rel={channel.external ? "noopener noreferrer" : undefined}
-            class="flex items-center gap-4 p-4 rounded-2xl border border-[var(--surface-border)] bg-[var(--surface)] text-[var(--white-icon)] hover:text-white hover:bg-[var(--white-icon-tr)] transition duration-300 ease-in-out"
+            class="reveal flex items-center gap-4 p-4 rounded-2xl border border-[var(--surface-border)] bg-[var(--surface)] text-[var(--white-icon)] hover:text-white hover:bg-[var(--white-icon-tr)] transition duration-300 ease-in-out"
           >
             <span class="text-[var(--sec)]">
               <Fragment set:html={channel.icon} />
@@ -71,7 +73,7 @@ const channels = [
       }
     </div>
 
-    <p class="text-[var(--white-icon)] text-sm mt-8 max-w-3xl leading-relaxed">
+    <p class="reveal text-[var(--white-icon)] text-sm mt-8 max-w-3xl leading-relaxed">
       {c.cta}
     </p>
   </div>

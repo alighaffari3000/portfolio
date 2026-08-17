@@ -65,6 +65,20 @@
     while still letting the backdrop tint through.
   */
   --surface-inset: rgba(12, 12, 18, 0.55);
+
+  /*
+    Project status dots. "Deployed" used to be a hardcoded #A9FF5B, a lime
+    green that belongs to no other part of this site and read as a stray token
+    from some other design next to the purple.
+
+    The distinction is now accent versus muted rather than green versus purple:
+    a shipped project gets the site's own accent, one still in development gets
+    the same grey as secondary text. The written label beside each dot is what
+    actually carries the meaning, so nothing here depends on telling two hues
+    apart.
+  */
+  --status-live: var(--sec);
+  --status-wip: var(--white-icon);
 }
 
 /*
@@ -146,4 +160,186 @@
 :focus-visible {
   outline: 2px solid var(--sec);
   outline-offset: 3px;
+}
+
+/*
+  Replaces the hand-rolled scrollIntoView listener that used to sit in
+  Nav.astro. Native smooth scrolling covers every in-page hash target — the nav
+  links, the skip link, anything added later — instead of only the ones a
+  querySelectorAll happened to catch at load time.
+*/
+html {
+  scroll-behavior: smooth;
+}
+
+/*
+  Cross-page transition.
+
+  <ClientRouter /> ships NO animation of its own — it makes navigation
+  client-side and then leaves the browser's built-in 0.25s cross-fade in place.
+  Between two pages that share a persisted backdrop and a pixel-identical fixed
+  nav, cross-fading them is a no-op: there is nothing different to fade
+  BETWEEN, so navigation read as an instant cut next to the ~600ms smooth
+  scroll that in-page links get.
+
+  The fix is a deliberate dip. The outgoing page clears before the incoming one
+  has fully arrived, so there is a real moment — around 180ms in — where the
+  content is mostly gone and the aurora shows through on its own. That gap is
+  the transition; without it there is only a dissolve nobody can see.
+
+  Opacity only, no transform. The snapshot the browser animates covers the
+  whole viewport INCLUDING the fixed nav and the persisted backdrop, so any
+  translate here would drag the aurora and the nav pill across the screen with
+  the page. Entrance motion belongs to the content itself, not to the swap.
+
+  `mix-blend-mode` is left at the UA default (`plus-lighter`), which is what
+  makes the dip read as a clean darkening rather than two ghosted copies
+  overlapping.
+*/
+::view-transition-old(root) {
+  animation: page-out 220ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+::view-transition-new(root) {
+  animation: page-in 320ms cubic-bezier(0.16, 1, 0.3, 1) 130ms both;
+}
+
+@keyframes page-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/*
+  Heading scale.
+
+  Two problems these replace.
+
+  First, every heading stepped between exactly two sizes at one breakpoint —
+  section titles jumped 36px to 48px the instant the viewport crossed 768px.
+  Between those two widths the size was never right: too big for the small end
+  of the range, too small for the large end, and visibly snapping at the seam.
+  clamp() interpolates instead, so the size is correct at every width and there
+  is no seam at all.
+
+  Second, and the reason large type looked amateurish: a typeface's built-in
+  letter spacing is tuned for reading sizes. Scale that same face to 60px and
+  the gaps scale with it, leaving display type looking loose and unset. Every
+  size below pulls its tracking back in proportion to how large it is.
+
+  Deliberately UNLAYERED, for the same reason as the focus ring further down:
+  unlayered CSS beats Tailwind's `utilities` layer regardless of specificity.
+  These classes replaced `text-4xl md:text-5xl` pairs across five components,
+  and if any stray size utility survived somewhere, a layered rule here would
+  lose to it silently and that component alone would keep the old stepped
+  scale. Out here the scale holds everywhere. The cost is that a `text-*`
+  utility can no longer override one of these on a one-off basis; add a
+  modifier class instead.
+*/
+.heading-hero {
+  font-size: clamp(3rem, 2.6rem + 1.7vw, 3.75rem);
+  letter-spacing: -0.03em;
+}
+
+.heading-page {
+  font-size: clamp(2.25rem, 1.4rem + 3.6vw, 3.75rem);
+  letter-spacing: -0.03em;
+}
+
+.heading-section {
+  font-size: clamp(2.25rem, 1.87rem + 1.6vw, 3rem);
+  letter-spacing: -0.02em;
+}
+
+.heading-sub {
+  font-size: clamp(1.875rem, 1.68rem + 0.83vw, 2.25rem);
+  letter-spacing: -0.015em;
+}
+
+/*
+  Persian keeps its natural spacing. Arabic-script letters join along a
+  baseline, and pulling them together does not tighten the setting the way it
+  does for Latin — it degrades the joins and makes words harder to read. The
+  fluid sizes above still apply on these pages; only the tracking is dropped.
+*/
+[dir='rtl'] .heading-hero,
+[dir='rtl'] .heading-page,
+[dir='rtl'] .heading-section,
+[dir='rtl'] .heading-sub {
+  letter-spacing: normal;
+}
+
+/*
+  Scroll reveal.
+
+  Content rises the last stretch into view instead of simply being there. This
+  is the vertical motion deliberately left out of the page transition above —
+  the swap animates a viewport snapshot that includes the fixed nav and the
+  persisted backdrop, so travel had to live on the content itself, not on the
+  swap.
+
+  Driven by a scroll timeline, not JavaScript: no IntersectionObserver, no
+  listener, no per-element bookkeeping. `view()` gives each element its own
+  timeline based on its own position, so a column of cards staggers by itself
+  as it comes up — nothing here sets a delay.
+
+  The whole block sits behind @supports on purpose. Where scroll-driven
+  animations are missing (Firefox at time of writing) the rules never apply and
+  content renders normally. That matters more than it looks: WITHOUT the guard,
+  `animation-timeline` would be dropped while `animation-name` survived, so
+  every reveal would fire as an ordinary time-based animation on load — the
+  whole page flashing at once, and anything far down finishing long before it
+  was scrolled to.
+
+  Longhand rather than the `animation:` shorthand, which resets
+  `animation-timeline` and `animation-range` to their initial values and would
+  silently turn these back into ordinary load-time animations depending on
+  declaration order.
+*/
+@keyframes reveal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation-name: reveal-rise;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+      animation-timeline: view();
+      /*
+        Finishes at 55% of the way in rather than 100%, so an element is fully
+        settled well before it reaches the middle of the screen. Ending at 100%
+        means content is still fading while you are already trying to read it.
+      */
+      animation-range: entry 0% entry 55%;
+    }
+  }
+}
+
+/*
+  Motion opt-out. ClientRouter injects its own `prefers-reduced-motion` guard
+  for the view transitions, so this only has to cover the smooth scrolling
+  above — but the `!important` on the transition pseudos stays, because the
+  rules just above are author-level and would otherwise outrank nothing at all
+  if Astro ever drops its guard.
+*/
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
 }

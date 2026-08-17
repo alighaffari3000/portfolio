@@ -15,6 +15,9 @@ interface GalleryImage {
 interface Props {
   locale: Locale;
   project: {
+    /* Only used to pair the hero image with its thumbnail in Projects.astro
+       across a view transition — see the transition:name on the <img> below. */
+    slug: string;
     title: string;
     summary: string | null;
     description: string | null;
@@ -66,7 +69,7 @@ const sections = [
         </span>
       </div>
 
-      <h1 class="text-4xl sm:text-6xl font-medium text-[var(--white)] leading-tight">
+      <h1 class="heading-page font-medium text-[var(--white)] leading-tight">
         {project.title}
       </h1>
 
@@ -113,10 +116,15 @@ const sections = [
     </header>
 
     {project.heroImage && (
+      <!-- Deliberately NOT `.reveal`. The <img> inside owns a transition:name
+           and flies here from the project card; a reveal on its wrapper would
+           hold that wrapper at opacity 0 until scrolled to, so the image would
+           complete its flight and then vanish. -->
       <div class="rounded-2xl overflow-hidden border border-[var(--surface-border)] bg-[var(--surface)]">
         <img
           src={project.heroImage}
           alt={project.title}
+          transition:name={`project-hero-${project.slug}`}
           class="w-full h-auto object-cover max-h-[500px]"
         />
       </div>
@@ -125,7 +133,7 @@ const sections = [
     <div class="space-y-10">
       {sections.map((section) =>
         section.body ? (
-          <section class="p-8 rounded-2xl bg-[var(--surface)] border border-[var(--surface-border)]">
+          <section class="reveal p-8 rounded-2xl bg-[var(--surface)] border border-[var(--surface-border)]">
             <!-- Eyebrows are labels, not headings — as <h2> above an <h3> they
                  made the 12px kicker outrank the actual section title. -->
             <p class={`text-xs font-semibold uppercase tracking-widest mb-3 ${section.accent}`}>
@@ -140,7 +148,7 @@ const sections = [
       )}
 
       {project.features.length > 0 && (
-        <section class="p-8 rounded-2xl bg-[var(--surface)] border border-[var(--surface-border)]">
+        <section class="reveal p-8 rounded-2xl bg-[var(--surface)] border border-[var(--surface-border)]">
           <p class="text-xs font-semibold uppercase tracking-widest text-[var(--sec)] mb-3 shiny-sec">
             {cs.features}
           </p>
@@ -157,7 +165,7 @@ const sections = [
       )}
 
       {project.architecture && (
-        <section class="p-8 rounded-2xl bg-[var(--surface)] border border-[var(--surface-border)]">
+        <section class="reveal p-8 rounded-2xl bg-[var(--surface)] border border-[var(--surface-border)]">
           <p class="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-3">
             {cs.architecture}
           </p>
@@ -172,7 +180,7 @@ const sections = [
       )}
 
       {gallery.length > 0 && (
-        <section class="p-8 rounded-2xl bg-[var(--surface)] border border-[var(--surface-border)]">
+        <section class="reveal p-8 rounded-2xl bg-[var(--surface)] border border-[var(--surface-border)]">
           <p class="text-xs font-semibold uppercase tracking-widest text-[var(--sec)] mb-3 shiny-sec">
             {cs.gallery}
           </p>

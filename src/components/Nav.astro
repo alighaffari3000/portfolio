@@ -10,26 +10,44 @@ const strings = t(locale);
 const otherLocale: Locale = locale === "fa" ? "en" : "fa";
 const switchHref = alternatePath(Astro.url.pathname, otherLocale);
 
+/*
+  Which item is current is answered in two halves.
+
+  Whole pages are decided here, on the server, so /projects renders with its
+  item already marked and there is no flash of a wrong state before hydration.
+  Sections of the home page cannot be: which one you are looking at depends on
+  scroll position, so the script below takes over for those. `spy` is the id it
+  watches; items without one are page links and are never touched by it.
+*/
+const path = Astro.url.pathname;
+const projectsPath = localizePath("/projects", locale);
+const onProjectsPage = path === projectsPath || path.startsWith(`${projectsPath}/`);
+
 interface NavItem {
   label: string;
   href: string;
   icon: string;
+  spy?: string;
+  current?: boolean;
 }
 
 const navItems: NavItem[] = [
   {
     label: strings.nav.home,
     href: localizePath("/", locale) + "#home",
+    spy: "home",
     icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M21 20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V9.48907C3 9.18048 3.14247 8.88917 3.38606 8.69972L11.3861 2.47749C11.7472 2.19663 12.2528 2.19663 12.6139 2.47749L20.6139 8.69972C20.8575 8.88917 21 9.18048 21 9.48907V20ZM19 19V9.97815L12 4.53371L5 9.97815V19H19Z"></path></svg>`,
   },
   {
     label: strings.nav.projects,
-    href: localizePath("/projects", locale),
+    href: projectsPath,
+    current: onProjectsPage,
     icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M4 5V19H20V7H11.5858L9.58579 5H4ZM12.4142 5H21C21.5523 5 22 5.44772 22 6V20C22 20.5523 21.5523 21 21 21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3H10.4142L12.4142 5Z"></path></svg>`,
   },
   {
     label: strings.nav.contact,
     href: localizePath("/", locale) + "#contact",
+    spy: "contact",
     icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M21.7267 2.95694L16.2734 22.0432C16.1225 22.5716 15.7979 22.5956 15.5563 22.1126L11 13L1.9229 9.36919C1.41322 9.16532 1.41953 8.86022 1.95695 8.68108L21.0432 2.31901C21.5716 2.14285 21.8747 2.43866 21.7267 2.95694ZM19.0353 5.09647L6.81221 9.17085L12.4488 11.4255L15.4895 17.5068L19.0353 5.09647Z"></path></svg>`,
   },
 ];
@@ -49,7 +67,10 @@ const navItems: NavItem[] = [
             <li class="flex-1 md:flex-none">
               <a
                 href={item.href}
-                class="flex flex-col items-center gap-1 text-[var(--white-icon)] transition-colors text-xs md:text-base relative group"
+                data-spy={item.spy}
+                data-current={item.current ? "true" : undefined}
+                aria-current={item.current ? "page" : undefined}
+                class="nav-link flex flex-col items-center gap-1 text-[var(--white-icon)] transition-colors text-xs md:text-base relative group"
               >
                 <span class="md:hidden flex items-center justify-center w-6 h-6">
                   <Fragment set:html={item.icon} />
@@ -101,11 +122,33 @@ const navItems: NavItem[] = [
   }
 
   /*
-    The `.active` rules and the `.nav-indicator` dot they drove are gone. No
-    code ever set that class, so the dot rendered at scale 0 / opacity 0 on
-    every link forever and the active-link colour never applied — three dead
-    elements and two dead rules pretending to be a current-section indicator.
+    The current-item indicator, rebuilt. The version that shipped originally
+    was three `.nav-indicator` dots and two `.active` rules that nothing ever
+    set, so the dots sat at scale 0 forever and the colour never applied.
+
+    This one is driven by `data-current`, written on the server for whole pages
+    and by the script below for sections of the home page.
+
+    The dot is an absolutely positioned ::after, so switching it on adds no
+    height and the nav never shifts as you scroll past a section boundary. The
+    colour change alone would be enough on desktop, but the phone layout puts
+    an icon above the label and the extra mark reads more clearly there.
   */
+  .nav-link[data-current] {
+    color: var(--white);
+  }
+
+  .nav-link[data-current]::after {
+    content: "";
+    position: absolute;
+    bottom: -0.4rem;
+    left: 50%;
+    translate: -50% 0;
+    width: 0.25rem;
+    height: 0.25rem;
+    border-radius: 9999px;
+    background-color: var(--sec);
+  }
 
   /* On phones the nav is a full-width bottom bar, not a floating pill. */
   @media (max-width: 767px) {
@@ -119,18 +162,72 @@ const navItems: NavItem[] = [
   }
 </style>
 
+<!--
+  The smooth-scroll script that used to live here is gone. It bound to
+  `a[href^="#"]`, and every link in this nav is `/#home` / `/#contact` — a
+  pathname plus a hash — so it never matched a single nav item. The one element
+  in the project it DID match was the skip link in Layout.astro, where its
+  preventDefault() cancelled the navigation and left focus stranded on the link
+  instead of moving it to <main>.
+
+  `scroll-behavior: smooth` in global.css now does the job for real, for every
+  hash target, with no JS and with a prefers-reduced-motion escape hatch the
+  script never had.
+-->
+
 <script>
-  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-    anchor.addEventListener("click", function (e) {
-      e.preventDefault();
-      const target = e.currentTarget as HTMLAnchorElement;
-      const targetId = target.getAttribute("href")?.substring(1) || "";
-      const targetElement = document.getElementById(targetId);
-      if (targetElement) {
-        targetElement.scrollIntoView({
-          behavior: "smooth",
-        });
+  /*
+    Scroll spy for the home page sections. Everything else is decided on the
+    server; this only ever moves the mark between #home and #contact.
+
+    Bound to `astro:page-load` rather than run at module scope. With the
+    ClientRouter in play a module script runs once for the whole session, so a
+    top-level observer would be watching sections that were torn out of the
+    document by the first navigation. That event fires on the initial load and
+    again after every swap, and the old observer is disconnected each time so
+    they cannot accumulate.
+  */
+  let observer: IntersectionObserver | null = null;
+
+  function initScrollSpy() {
+    observer?.disconnect();
+    observer = null;
+
+    const links = [
+      ...document.querySelectorAll<HTMLAnchorElement>(".nav-link[data-spy]"),
+    ];
+    // Only the home page has these sections; elsewhere this finds none and the
+    // server-rendered mark on the Projects item is left alone.
+    const sections = links
+      .map((link) => document.getElementById(link.dataset.spy!))
+      .filter((el): el is HTMLElement => el !== null);
+    if (sections.length === 0) return;
+
+    const clear = () =>
+      links.forEach((link) => delete link.dataset.current);
+
+    observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          clear();
+          const match = links.find((l) => l.dataset.spy === entry.target.id);
+          if (match) match.dataset.current = "true";
+        }
+      },
+      {
+        /*
+          A band across the middle of the viewport rather than the whole of it.
+          Watching the full viewport means two sections qualify at once
+          whenever a boundary is on screen, and the mark flickers between them.
+          A thin band can only ever contain one.
+        */
+        rootMargin: "-45% 0px -45% 0px",
       }
-    });
-  });
+    );
+
+    sections.forEach((section) => observer!.observe(section));
+  }
+
+  document.addEventListener("astro:page-load", initScrollSpy);
 </script>

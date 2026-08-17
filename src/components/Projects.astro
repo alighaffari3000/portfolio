@@ -27,13 +27,20 @@ const rows = await db.project.findMany({
 const projects = rows.map((row) => resolveProject(row, locale));
 ---
 
-<section
-  id="projects"
-  class="py-12 border-t border-[var(--surface-border)] text-[var(--white)]"
->
+<!--
+  No `border-t`. Projects, Why, Contact and the footer all carried the same
+  `py-12 border-t` and stacked four identical hairlines down the page, which
+  made the whole thing read like a form rather than a portfolio. The rules are
+  gone from the three content sections and the vertical space roughly doubled,
+  so the gap does the separating. The footer keeps its border, because that one
+  divides content from chrome and is worth drawing.
+-->
+<section id="projects" class="py-16 md:py-24 text-[var(--white)]">
   <div class="max-w-5xl mx-auto">
-    <p class="text-lg text-[var(--sec)] mb-2 shiny-sec">{strings.projects.eyebrow}</p>
-    <Heading class="text-4xl md:text-5xl font-medium mb-8">{strings.projects.heading}</Heading>
+    <div class="reveal">
+      <p class="text-lg text-[var(--sec)] mb-2 shiny-sec">{strings.projects.eyebrow}</p>
+      <Heading class="heading-section font-medium mb-8">{strings.projects.heading}</Heading>
+    </div>
 
     {projects.length === 0 ? (
       <div class="p-8 rounded-2xl border border-[var(--surface-border)] bg-[var(--surface)] text-center text-[var(--white-icon)]">
@@ -44,19 +51,45 @@ const projects = rows.map((row) => resolveProject(row, locale));
         {
           projects.map((project) => {
             const statusText = project.demoUrl ? strings.projects.statusDeployed : strings.projects.statusInProgress;
-            const statusDotColor = project.demoUrl ? "bg-[#A9FF5B]" : "bg-[var(--sec)]";
+            const statusDotColor = project.demoUrl
+              ? "bg-[var(--status-live)]"
+              : "bg-[var(--status-wip)]";
 
             return (
-              <div class="group">
+              /* No stagger delay anywhere: each card gets its own view()
+                 timeline from its own position, so a column of them comes up
+                 one after another on its own. */
+              <div class="group reveal">
+                {/*
+                  The lift lives on the <a>, NOT on the .reveal wrapper above.
+                  That wrapper is driven by a scroll-timeline animation on
+                  `transform` with fill-mode both, and an animated property
+                  outranks a plain declaration for as long as the animation
+                  applies — a hover transform there would simply never take
+                  effect. Two different elements, two transforms, no conflict.
+                */}
                 <a
                   href={localizePath(`/projects/${project.slug}`, locale)}
-                  class="block"
+                  class="block transition-transform duration-300 group-hover:-translate-y-1"
                 >
-                  <div class="rounded-2xl overflow-hidden shadow-lg border border-[var(--surface-border)] bg-[var(--surface)] mb-4">
+                  <div class="project-card relative rounded-2xl overflow-hidden shadow-lg border border-[var(--surface-border)] bg-[var(--surface)] mb-4">
                     {project.heroImage ? (
+                      /*
+                        The shared name pairs this thumbnail with the hero image
+                        of the same project's case study, so following the card
+                        flies the image up into the article header instead of
+                        cross-fading two unrelated pictures. Named by slug
+                        because view-transition-name must be unique per page —
+                        four cards on the home page each need their own.
+
+                        Only on the image branch: the lettered placeholder below
+                        has no counterpart on the case study page, and pairing
+                        it with nothing would animate it out to a blank.
+                      */
                       <img
                         src={project.heroImage}
                         alt={project.title}
+                        transition:name={`project-hero-${project.slug}`}
                         class="w-full h-48 md:h-72 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
@@ -78,9 +111,34 @@ const projects = rows.map((row) => resolveProject(row, locale));
                         {statusText}
                       </span>
                     </div>
+
+                    {/*
+                      What a project is built with was previously only visible
+                      after opening its case study, so the grid gave a visitor
+                      no way to tell an agent project from a data pipeline at a
+                      glance. Capped at four so a long stack cannot push the
+                      card out of step with its neighbour in the grid.
+
+                      `dir="ltr"` because these are product names and stay
+                      Latin on the Persian pages; without it the list renders
+                      right to left and reads backwards.
+
+                      `--surface-inset`, not `--surface`: these sit on a card
+                      that is already `--surface`, and matching it would leave
+                      them invisible.
+                    */}
+                    {project.techStack.length > 0 && (
+                      <div class="flex flex-wrap gap-1.5 mt-3" dir="ltr">
+                        {project.techStack.slice(0, 4).map((tech) => (
+                          <span class="px-2.5 py-1 text-[11px] font-mono rounded-full bg-[var(--surface-inset)] border border-[var(--surface-border)] text-[var(--white-icon)]">
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </a>
-                {/* Action links stay OUTSIDE the card anchor — nesting <a> in <a> is invalid HTML. */}
+                {/* Action links stay OUTSIDE the card anchor: nesting <a> in <a> is invalid HTML. */}
                 <div class="flex gap-2 px-3 mt-3">
                       {project.githubUrl && (
                         <a
@@ -123,3 +181,107 @@ const projects = rows.map((row) => resolveProject(row, locale));
     )}
   </div>
 </section>
+
+<style>
+  /*
+    A one-pixel accent border that lights up under the cursor.
+
+    Drawn as a gradient rectangle with the middle masked away, because CSS has
+    no gradient border: `border-image` cannot take a radial gradient with
+    rounded corners. Two stacked masks, one clipped to the content box and one
+    to the whole element, subtracted from each other, leave exactly the 1px
+    frame between them.
+
+    `inset: 0`, not a negative inset: the parent is `overflow: hidden` for the
+    image, so anything drawn outside its bounds would be clipped off.
+
+    --cx/--cy default to the centre, which is what a keyboard user or a
+    reduced-motion visitor sees: the same glow, simply not tracking anything.
+  */
+  .project-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 300ms ease;
+    background: radial-gradient(
+      14rem 14rem at var(--cx, 50%) var(--cy, 50%),
+      var(--sec),
+      transparent 70%
+    );
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+  }
+
+  :global(.group:hover) .project-card::before,
+  :global(.group:focus-within) .project-card::before {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-card::before {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  /*
+    One delegated listener on the document, not one per card.
+
+    Delegation is what makes this survive client-side navigation: Astro does
+    not re-execute a module script that has already run, so anything bound to
+    the cards themselves on first load would go dead the moment the router
+    swapped in a fresh grid. A listener on the document never needs rebinding,
+    and it costs one handler no matter how many cards are on the page.
+
+    Gated exactly like the backdrop spotlight: no hovering cursor on touch, and
+    nothing at all for visitors who asked for reduced motion. The glow still
+    works in both cases, just centred rather than tracking.
+  */
+  const hasFinePointer = matchMedia("(pointer: fine)").matches;
+  const prefersReducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (hasFinePointer && !prefersReducedMotion) {
+    let pending: { card: HTMLElement; x: number; y: number } | null = null;
+    let frame: number | null = null;
+
+    function paint() {
+      if (pending) {
+        pending.card.style.setProperty("--cx", `${pending.x}px`);
+        pending.card.style.setProperty("--cy", `${pending.y}px`);
+      }
+      frame = null;
+    }
+
+    document.addEventListener(
+      "pointermove",
+      (event) => {
+        const card = (event.target as Element | null)?.closest?.(
+          ".project-card"
+        ) as HTMLElement | null;
+        if (!card) return;
+
+        // Relative to the card's own box, so this needs no RTL mirroring.
+        const rect = card.getBoundingClientRect();
+        pending = {
+          card,
+          x: event.clientX - rect.left,
+          y: event.clientY - rect.top,
+        };
+        if (frame === null) frame = requestAnimationFrame(paint);
+      },
+      { passive: true }
+    );
+  }
+</script>

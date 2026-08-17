@@ -13,8 +13,19 @@
 */
 ---
 
-<div class="backdrop" aria-hidden="true"></div>
-<div class="spotlight" aria-hidden="true"></div>
+<!--
+  `transition:persist` is not cosmetic here. With the ClientRouter in play the
+  swapped-in page gets fresh DOM, but Astro does NOT re-execute a module script
+  that has already run — so a re-created .spotlight would end up with no
+  pointermove listener bound to it and the cursor glow would die after the first
+  navigation. Persisting keeps the very elements the script captured on load.
+
+  It also means the aurora never re-paints mid-transition, which is the point:
+  the backdrop should feel like the surface the pages move across, not part of
+  the page being swapped.
+-->
+<div class="backdrop" aria-hidden="true" transition:persist="backdrop"></div>
+<div class="spotlight" aria-hidden="true" transition:persist="spotlight"></div>
 
 <style>
   .backdrop {

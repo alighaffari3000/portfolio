@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 import Backdrop from '../components/Backdrop.astro';
 import { t, dir, alternatePath, type Locale } from '../lib/i18n';
 
@@ -46,11 +47,24 @@ const pathname = Astro.url.pathname;
     <meta property="og:description" content={pageDescription} />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content={locale === 'fa' ? 'fa_IR' : 'en_US'} />
+
+    {/*
+      Client-side routing. Without it every internal link tore the whole
+      document down and rebuilt it — a white flash, the fixed nav blinking out
+      and back, and the LetterGlitch canvas restarting from scratch on each
+      navigation. With it the browser cross-fades between the two states and
+      the persisted pieces (backdrop, nav) never move at all.
+
+      Falls back to a normal full page load in browsers without the View
+      Transition API, so nothing here is load-bearing for navigation itself.
+    */}
+    <ClientRouter />
   </head>
   <body
     class="bg-[var(--background)] sm:px-28 lg:px-20 px-9 text-[var(--white)] min-h-screen antialiased selection:bg-[var(--sec)] selection:text-[var(--background)]"
   >
     <Backdrop />
+    <div class="scroll-progress" aria-hidden="true"></div>
     <!-- The nav is fixed and comes first in every page's markup, so without
          these a keyboard user tabbed through all four nav links on every
          navigation, and screen reader users had no `main` landmark to jump to. -->
@@ -65,6 +79,54 @@ const pathname = Astro.url.pathname;
         out of the tab order and defeat the point. Logical properties so it
         lands on the correct side on the RTL Persian pages.
       */
+      /*
+        Scroll progress. Driven by the document's own scroll timeline, so it
+        needs no listener and no JavaScript at all.
+
+        `scaleX` rather than animating `width`, because scaling is composited
+        and never triggers layout; a width animation would reflow the bar on
+        every frame of every scroll.
+
+        Behind @supports for the same reason as the reveal animations: where
+        scroll timelines are missing, `animation-timeline` is dropped while
+        `animation-name` survives, and the bar would sweep across once on load
+        and then sit permanently full.
+
+        `aria-hidden` on the element itself: this repeats information the
+        scrollbar already conveys, and announcing it adds nothing.
+      */
+      .scroll-progress {
+        position: fixed;
+        top: 0;
+        inset-inline: 0;
+        height: 2px;
+        z-index: 150;
+        background: var(--sec);
+        transform: scaleX(0);
+        transform-origin: left center;
+      }
+
+      :global([dir='rtl']) .scroll-progress {
+        transform-origin: right center;
+      }
+
+      @supports (animation-timeline: scroll()) {
+        @media (prefers-reduced-motion: no-preference) {
+          .scroll-progress {
+            animation-name: scroll-progress;
+            animation-fill-mode: both;
+            animation-timing-function: linear;
+            animation-timeline: scroll(root block);
+          }
+        }
+      }
+
+      @keyframes scroll-progress {
+        to {
+          transform: scaleX(1);
+        }
+      }
+
       .skip-link {
         position: absolute;
         inset-inline-start: -9999px;
