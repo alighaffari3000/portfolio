@@ -55,7 +55,7 @@ const LikeButton = ({ label, actionLabel, likedLabel }: Props) => {
         aria-pressed={isLiked}
         aria-label={isLiked ? likedLabel : actionLabel}
         className={`
-          group relative w-40 h-10 flex items-center justify-center p-3
+          group relative w-40 h-11 flex items-center justify-center p-3
           rounded-full transition-all duration-300 ease-in-out transform border-2 ${borderColorClass}
           ${!isLiked ? "hover:scale-105 hover:border-[var(--white)] cursor-pointer" : "cursor-default"}
           ${isAnimating ? "animate-heart-pulse" : ""}

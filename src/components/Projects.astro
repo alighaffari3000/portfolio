@@ -5,10 +5,19 @@ import { t, localizePath, resolveProject, type Locale } from '../lib/i18n';
 interface Props {
   locale?: Locale;
   limit?: number;
+  /**
+   * `2` on the home page, where the hero already owns the h1. `1` on the
+   * standalone /projects index, which otherwise had no h1 at all and started
+   * its outline at h2. Card titles follow one level below either way.
+   */
+  headingLevel?: 1 | 2;
 }
 
-const { locale = 'en', limit } = Astro.props;
+const { locale = 'en', limit, headingLevel = 2 } = Astro.props;
 const strings = t(locale);
+
+const Heading = `h${headingLevel}` as 'h1' | 'h2';
+const CardHeading = `h${headingLevel + 1}` as 'h2' | 'h3';
 
 const rows = await db.project.findMany({
   where: { published: true },
@@ -20,11 +29,11 @@ const projects = rows.map((row) => resolveProject(row, locale));
 
 <section
   id="projects"
-  class="py-12 border-t border-[#ffffff10] text-[var(--white)]"
+  class="py-12 border-t border-[var(--surface-border)] text-[var(--white)]"
 >
   <div class="max-w-5xl mx-auto">
-    <h2 class="text-lg text-[var(--sec)] mb-2 shiny-sec">{strings.projects.eyebrow}</h2>
-    <h3 class="text-4xl md:text-5xl font-medium mb-8">{strings.projects.heading}</h3>
+    <p class="text-lg text-[var(--sec)] mb-2 shiny-sec">{strings.projects.eyebrow}</p>
+    <Heading class="text-4xl md:text-5xl font-medium mb-8">{strings.projects.heading}</Heading>
 
     {projects.length === 0 ? (
       <div class="p-8 rounded-2xl border border-[var(--surface-border)] bg-[var(--surface)] text-center text-[var(--white-icon)]">
@@ -60,9 +69,9 @@ const projects = rows.map((row) => resolveProject(row, locale));
                     )}
                   </div>
                   <div class="px-3">
-                    <h4 class="text-2xl font-semibold text-[var(--white)] group-hover:text-[var(--sec)] transition-colors">
+                    <CardHeading class="text-2xl font-semibold text-[var(--white)] group-hover:text-[var(--sec)] transition-colors">
                       {project.title}
-                    </h4>
+                    </CardHeading>
                     <div class="flex items-center gap-2 mt-1">
                       <span class={`inline-block w-2 h-2 rounded-full ${statusDotColor}`}></span>
                       <span class="text-sm text-[var(--white-icon)]">
@@ -76,6 +85,7 @@ const projects = rows.map((row) => resolveProject(row, locale));
                       {project.githubUrl && (
                         <a
                           target="_blank"
+                          rel="noopener noreferrer"
                           href={project.githubUrl}
                           aria-label="GitHub"
                           class="size-14 flex justify-center items-center text-[var(--white-icon)] hover:text-white transition duration-300 ease-in-out border border-1 border-[var(--surface-border)] p-3 rounded-xl bg-[var(--surface)] hover:bg-[var(--white-icon-tr)]"

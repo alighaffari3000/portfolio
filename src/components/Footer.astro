@@ -31,6 +31,8 @@ const socials = [
   <div class="max-w-5xl mx-auto">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-10">
       <div class="flex flex-col lg:items-start items-center space-y-6 gap-9">
+        <!-- min-w/h-11 on each link = 44px: the 32px icon alone left a hit
+             area below the recommended touch target on phones. -->
         <div class="flex gap-8">
           {
             socials.map((link) => (
@@ -38,7 +40,7 @@ const socials = [
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="flex flex-col items-center group"
+                class="flex flex-col items-center justify-center min-w-11 min-h-11 group"
                 aria-label={link.label}
               >
                 <div class="text-[var(--white-icon)] hover:text-[var(--white)] transition duration-300 ease-in-out">
@@ -82,15 +84,15 @@ const socials = [
         <div
           class="w-full max-w-xs p-4 rounded-xl border border-[var(--surface-border)] bg-[var(--surface)]"
         >
-          <h4 class="text-sm font-medium text-[var(--white)] mb-1">
+          <h2 class="text-sm font-medium text-[var(--white)] mb-1">
             {profile.name[locale]}
-          </h4>
+          </h2>
           <p class="text-xs text-[var(--white-icon)]">{strings.siteDescription}</p>
         </div>
       </div>
     </div>
 
-    <div class="mt-12 pt-8 border-t border-[#ffffff10]">
+    <div class="mt-12 pt-8 border-t border-[var(--surface-border)]">
       <p class="text-center text-sm text-[var(--white-icon)]">
         © {currentYear} {profile.name[locale]}. {strings.footer.rights}
       </p>

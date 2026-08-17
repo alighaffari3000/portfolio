@@ -15,8 +15,8 @@ const strings = t(locale);
   description={strings.siteDescription}
 >
   <Nav locale={locale} />
-  <main class="min-h-screen pt-24 md:pt-32">
-    <Projects locale={locale} />
-  </main>
+  <div class="min-h-screen pt-24 md:pt-32">
+    <Projects locale={locale} headingLevel={1} />
+  </div>
   <Footer locale={locale} />
 </Layout>

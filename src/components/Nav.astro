@@ -51,7 +51,6 @@ const navItems: NavItem[] = [
                 href={item.href}
                 class="flex flex-col items-center gap-1 text-[var(--white-icon)] transition-colors text-xs md:text-base relative group"
               >
-                <div class="absolute -left-6 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full transition-all duration-300 scale-0 opacity-0 bg-[#A9FF5B] nav-indicator hidden md:block" />
                 <span class="md:hidden flex items-center justify-center w-6 h-6">
                   <Fragment set:html={item.icon} />
                 </span>
@@ -97,19 +96,16 @@ const navItems: NavItem[] = [
   */
   nav {
     background-color: rgba(20, 20, 20, 0.9);
-    border-color: #ffffff10;
+    border-color: var(--surface-border);
     border-radius: 9999px;
   }
 
-  /* Same reason: drive `scale`/`translate` properties, not `transform`. */
-  nav a.active .nav-indicator {
-    scale: 1;
-    opacity: 1;
-  }
-
-  nav a.active {
-    color: white !important;
-  }
+  /*
+    The `.active` rules and the `.nav-indicator` dot they drove are gone. No
+    code ever set that class, so the dot rendered at scale 0 / opacity 0 on
+    every link forever and the active-link colour never applied — three dead
+    elements and two dead rules pretending to be a current-section indicator.
+  */
 
   /* On phones the nav is a full-width bottom bar, not a floating pill. */
   @media (max-width: 767px) {

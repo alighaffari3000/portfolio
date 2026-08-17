@@ -34,10 +34,13 @@ const channels = [
 ];
 ---
 
-<section id="contact" class="w-full py-12 border-t border-[#ffffff10]">
+<section id="contact" class="w-full py-12 border-t border-[var(--surface-border)]">
   <div class="max-w-5xl mx-auto">
-    <h2 class="text-lg text-[var(--sec)] mb-2 shiny-sec">{c.eyebrow}</h2>
-    <h3 class="text-4xl md:text-5xl font-medium mb-4">{c.heading}</h3>
+    <!-- The eyebrow is a label, not a heading. As an <h2> above an <h3> it
+         inverted the outline: screen readers got the 18px kicker as the
+         section's heading and the real 48px title as its subsection. -->
+    <p class="text-lg text-[var(--sec)] mb-2 shiny-sec">{c.eyebrow}</p>
+    <h2 class="text-4xl md:text-5xl font-medium mb-4">{c.heading}</h2>
     <p class="text-[var(--white-icon)] mb-8 max-w-2xl">{c.intro}</p>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">

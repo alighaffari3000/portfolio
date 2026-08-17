@@ -41,7 +41,9 @@ const SkillsList = ({ heading, groups }: Props) => {
 
   return (
     <div className="text-start pt-3 md:pt-9 w-full">
-      <h3 className="text-[var(--white)] text-3xl md:text-4xl font-medium md:mb-6">{heading}</h3>
+      {/* h2, not h3: this is a top-level section under the page h1, and as an
+          h3 it skipped a level in the document outline. */}
+      <h2 className="text-[var(--white)] text-3xl md:text-4xl font-medium md:mb-6">{heading}</h2>
       <ul className="space-y-4 mt-4 text-lg">
         {groups.map((group, index) => {
           const isOpen = openItem === group.title;
