@@ -16,6 +16,14 @@ const strings = t(locale);
 const pageTitle = title ?? strings.siteTitle;
 const pageDescription = description ?? strings.siteDescription;
 const pathname = Astro.url.pathname;
+
+/*
+  Derived from the path rather than passed in as a prop, so the admin pages
+  cannot forget it and a new one added later is covered the day it is created.
+  The authoritative directive is the X-Robots-Tag header set in middleware.ts;
+  this is the copy that survives a reverse proxy dropping headers.
+*/
+const isPrivate = pathname.startsWith('/admin') || pathname.startsWith('/api');
 ---
 
 <!doctype html>
@@ -29,6 +37,8 @@ const pathname = Astro.url.pathname;
 
     <title>{pageTitle}</title>
     <meta name="description" content={pageDescription} />
+
+    {isPrivate && <meta name="robots" content="noindex, nofollow" />}
 
     <link rel="alternate" hreflang="en" href={alternatePath(pathname, 'en')} />
     <link rel="alternate" hreflang="fa" href={alternatePath(pathname, 'fa')} />
