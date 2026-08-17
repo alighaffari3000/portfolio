@@ -13,7 +13,7 @@ if (!slug) {
   return Astro.rewrite('/404');
 }
 
-// Direct Prisma query during SSR — public pages never go through the API.
+// Direct Prisma query during SSR. Public pages never go through the API.
 const row = await db.project.findUnique({
   where: { slug },
   include: { gallery: { orderBy: { order: 'asc' } } },
@@ -25,7 +25,7 @@ if (!row || !row.published) {
 
 const project = resolveProject(row, locale);
 const strings = t(locale);
-const pageTitle = `${project.title} — ${strings.projects.caseStudy}`;
+const pageTitle = `${project.title} | ${strings.projects.caseStudy}`;
 const metaDescription = project.summary || project.description || project.title;
 ---
 

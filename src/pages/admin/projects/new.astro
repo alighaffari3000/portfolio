@@ -2,7 +2,7 @@
 import Layout from '../../../layouts/Layout.astro';
 ---
 
-<Layout title="New Project — Admin">
+<Layout title="New Project | Admin">
   <div class="min-h-screen bg-[var(--background)] text-[var(--white)] pb-20">
     <header class="border-b border-[var(--white-icon-tr)] bg-[#1414149c] backdrop-blur-md sticky top-0 z-50">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -261,7 +261,7 @@ import Layout from '../../../layouts/Layout.astro';
       architecture: formData.get('architecture'),
       challenges: formData.get('challenges'),
       results: formData.get('results'),
-      // Persian counterparts — empty values fall back to English on /fa.
+      // Persian counterparts. Empty values fall back to English on /fa.
       titleFa: formData.get('titleFa'),
       summaryFa: formData.get('summaryFa'),
       descriptionFa: formData.get('descriptionFa'),
